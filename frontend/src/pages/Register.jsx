@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./css/Register.css";
+import { GraduationCap, Building, CheckCircle, ChevronRight } from "../components/Icons";
 
 function Register() {
   const navigate = useNavigate();
@@ -54,10 +55,7 @@ function Register() {
       <div className="register-card">
         <div className="register-header">
           <div className="logo-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2 10l10-5 10 5-10 5z" />
-              <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-            </svg>
+            <GraduationCap size={24} />
           </div>
           <h2>Welcome To StudentHub</h2>
         </div>
@@ -76,52 +74,27 @@ function Register() {
           <div className="role-selector">
             <div className={`role-card ${role === "student" ? "selected" : ""}`} onClick={() => setRole("student")}>
               <div className="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 10l10-5 10 5-10 5z" />
-                  <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-                </svg>
+                <GraduationCap />
               </div>
               <div className="role-info">
                 <h3>Student</h3>
                 <p>I'm a university student looking for events to attend</p>
               </div>
               <span className="role-check">
-                {role === "student" ? (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--primary)" stroke="white" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M9 12l2 2 4-4" />
-                  </svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                )}
+                {role === "student" ? <CheckCircle /> : <ChevronRight />}
               </span>
             </div>
 
             <div className={`role-card ${role === "organizer" ? "selected" : ""}`} onClick={() => setRole("organizer")}>
               <div className="role-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 21h18" />
-                  <path d="M5 21V7l7-4 7 4v14" />
-                  <path d="M9 21v-4h6v4" />
-                </svg>
+                <Building />
               </div>
               <div className="role-info">
                 <h3>Organization</h3>
                 <p>I represent a student club, faculty group, or other organization that hosts events</p>
               </div>
               <span className="role-check">
-                {role === "organizer" ? (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--primary)" stroke="white" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M9 12l2 2 4-4" />
-                  </svg>
-                ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                )}
+                {role === "organizer" ? <CheckCircle /> : <ChevronRight />}
               </span>
             </div>
           </div>

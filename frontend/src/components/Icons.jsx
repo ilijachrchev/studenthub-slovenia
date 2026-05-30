@@ -1,0 +1,35 @@
+export function GraduationCap({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
+    </svg>
+  );
+}
+
+export function Building({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-4 7 4v14" />
+      <path d="M9 21v-4h6v4" />
+    </svg>
+  );
+}
+
+export function CheckCircle({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="var(--primary)" stroke="white" strokeWidth="2.5">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+
+export function ChevronRight({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  );
+}
