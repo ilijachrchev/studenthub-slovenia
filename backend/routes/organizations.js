@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
         );
 
         await pool.query(
-            "INSERT INTO organizer_profile (id, user_id, organization_id, role_in_org) VALUES (NULL, ?, ?, 'owner')",
+            "INSERT INTO organizer_profile (user_id, organization_id, role_in_org) VALUES ( ?, ?, 'owner')",
             [req.session.user.id, result.insertId]
         );
 

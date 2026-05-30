@@ -3,6 +3,7 @@ const express = require('express');
 const pool = require("./db");
 const session = require("express-session");
 const authRoutes = require("./routes/auth");
+const organizationsRoutes = require("./routes/organizations");
 
 const app = express();
 const PORT = 30011;
@@ -27,6 +28,7 @@ app.get('/api', (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/organizations", organizationsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
