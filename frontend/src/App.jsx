@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import SetupOrganization from "./pages/SetupOrganization";
+import ApplicationStatus from "./pages/ApplicationStatus";
+import Home from "./pages/Home";
 
 export default function App() {
-  const [status, setStatus] = useState('loading...');
-
-  useEffect(() => {
-    fetch('api')
-      .then((response) => response.json())
-      .then((data) => setStatus(data.message))
-      .catch(() => setStatus('The backend could not be reached!'));
-  }, []);
-
   return (
-    <div>
-      <h1>StudentHub Slovenia</h1>
-      <p>Backend says: {status}</p>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/setup-organization" element={<SetupOrganization />} />
+        <Route path="/application-status" element={<ApplicationStatus />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
