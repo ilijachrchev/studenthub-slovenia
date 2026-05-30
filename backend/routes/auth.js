@@ -13,6 +13,22 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ error: "All fields are required" });
         }
 
+        const userRole = role === "organizer" ? "organizer" : "student";
+
+        // validate email domain for students
+        if (userRole === "student") {
+            const domain = email.split("@")[1];
+            const [faculties] = await pool.query(
+                "SELECT id FROM faculty WHERE email_domain = ?",
+                [domain]
+            );
+            if (faculties.length === 0) {
+                return res.status(400).json({
+                    error: "Email domain not recognized. Please use your institutional email.",
+                });
+            }
+        }
+
         // check if mail is already exisitnig
         const [existing] = await pool.query(
             "SELECT id FROM user WHERE email = ?",
@@ -26,9 +42,17 @@ router.post("/register", async (req, res) => {
 
         // insert new user
         const [result] = await pool.query(
-            "INSERT INTO user (first_name, last_name, email, password_hash, role) VALUES (?, ?, ?, ?, 'student')",
-            [first_name, last_name, email, hashedPassword]
+            "INSERT INTO user (first_name, last_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+            [first_name, last_name, email, hashedPassword, userRole]
         );
+
+        req.session.user = {
+            id: result.insertId,
+            first_name,
+            last_name,
+            email,
+            role: userRole,
+        };
 
         res.status(201).json({
             message: "Registration successful",
@@ -76,6 +100,22 @@ router.post("/login", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// /api/auth/me GET method
+router.get("/me", (req, res) => {
+    if (req.session.user) {
+        res.json({ user: req.session.user });
+    } else {
+        res.status(401).json({ error: "Not logged in" });
+    }
+});
+
+// /api/auth/logout GET method
+router.post("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.json({ message: "Logged out" });
+    });
 });
 
 module.exports = router;
