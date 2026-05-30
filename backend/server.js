@@ -1,22 +1,32 @@
 require("dotenv").config()
 const express = require('express');
 const pool = require("./db");
+const session = require("express-session");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 const PORT = 30011;
+
+// this is the middleware
+app.use(express.json());
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: false,
+            maxAge: 24 * 60 * 60 * 1000,
+        },
+    })
+);
 
 app.get('/api', (req, res) => {
   res.json({ status: "ok", message: 'Hello from the backend, IT IS RUNNING :)!' });
 });
 
-app.get("/api/dbtest", async (req, res) => {
-    try {
-        const [rows] = await pool.query("SHOW TABLES");
-        res.json({ status: "OK", tables: rows });
-    } catch (error) {
-        res.status(500).json({ status: "error", message: error.message });
-    }
-});
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
