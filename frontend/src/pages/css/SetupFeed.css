@@ -1,0 +1,61 @@
+.setup-subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.setup-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 1rem 0 0.4rem;
+  color: #03045e;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+
+.tag-chip {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  line-height: 1;
+  padding: 9px 16px;
+  border: 1.5px solid #90e0ef;
+  border-radius: 999px;
+  background: #fff;
+  color: #0077b6;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tag-chip:hover {
+  border-color: #00b4d8;
+  background: #f0fbff;
+}
+
+.tag-chip.selected {
+  background: #00b4d8;
+  border-color: #00b4d8;
+  color: #fff;
+}
+
+.tag-chip.selected:hover {
+  background: #0096b8;
+}
+
+.required {
+  color: #e63946;
+}
+
+.optional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.8rem;
+}

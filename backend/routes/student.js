@@ -16,6 +16,14 @@ router.post("/setup", async (req, res) => {
         return res.status(400).json({ error: "Faculty is required"});
     }
 
+    const [exisiting] = await poo.query(
+        "SELECT * FROM student_profile WHERE user_id = ?",
+        [userId]
+    );
+    if (exisiting.length > 0) {
+        return res.status(400).json({ error: "You have already set up your feed"});
+    }
+    
     const connection = await pool.getConnection();
 
     try {
