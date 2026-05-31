@@ -1,0 +1,85 @@
+.home-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+.home-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #03045e;
+  margin-bottom: 20px;
+}
+
+.home-status {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 0;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: box-shadow 0.15s ease;
+}
+
+.event-card:hover {
+  box-shadow: 0 4px 16px rgba(3, 4, 94, 0.08);
+}
+
+.event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.event-tag {
+  background: #caf0f8;
+  color: #03045e;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.event-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #03045e;
+  margin: 0 0 4px;
+}
+
+.event-org {
+  font-size: 14px;
+  color: #0077b6;
+  margin: 0 0 10px;
+}
+
+.event-meta {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 10px;
+}
+
+.event-desc {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.event-reg {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #00b4d8;
+}
