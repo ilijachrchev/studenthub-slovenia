@@ -95,4 +95,43 @@ router.get("/", async (req, res) => {
   }
 });
 
+// /api/events/:id GET method
+router.get("/:id", async (req, res) => {
+  try {
+    const eventId = req.params.id;
+
+    const [rows] = await pool.query(
+      `SELECT e.id, e.title, e.description, e.location,
+        e.start_datetime, e.end_datetime, e.capacity,
+        e.registration_type, e.external_url,
+        o.id AS organization_id, o.name AS organization_name,
+        o.description AS organization_description,
+        o.logo AS organization_logo, o.website AS organization_website,
+        o.contact_email AS organization_contact_email
+        FROM event e
+        JOIN organization o ON e.organization_id = o.id
+        WHERE e.id = ? AND e.status = 'published' AND o.status = 'approved'`,
+      [eventId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    const event = rows[0];
+    const [tagRows] = await pool.query(
+      `SELECT t.id, t.name
+       FROM event_tag et
+       JOIN tag t ON et.tag_id = t.id
+       WHERE et.event_id = ?`,
+      [eventId]
+    );
+
+    event.tags = tagRows;
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
