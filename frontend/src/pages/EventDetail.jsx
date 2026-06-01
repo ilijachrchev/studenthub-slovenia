@@ -1,83 +1,70 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import EventTagList from "../components/events/EventTagList";
+import EventInfoBox from "../components/events/EventInfoBox";
+import EventRegistrationBox from "../components/events/EventRegistrationBox";
 import "./css/EventDetail.css";
 
-
 function EventDetail() {
-    const {id} = useParams();
-    const [event, setEvent] = useState(null);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+  const { id } = useParams();
 
-    useEffect(() => {
-        async function loadEvent() {
-            try {
-                const response = await fetch(`/api/events/${id}`);
-                const data = await response.json();
-                if (!response.ok) {
-                    setError(data.error || "Failed to load event");
-                } else {
-                    setEvent(data);
-                }
-            } catch {
-                setError("Failed to load event");
-            } finally {
-            setLoading(false);
+  const [event, setEvent] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEvent() {
+      try {
+        const response = await fetch(`/api/events/${id}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || "Failed to load event");
+        } else {
+          setEvent(data);
         }
+      } catch {
+        setError("Failed to load event");
+      } finally {
+        setLoading(false);
+      }
     }
+
     loadEvent();
-    }, [id]);
-    
-    const formatDate = (dateString) =>
-        new Date(dateString).toLocaleDateString("en-GB", {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+  }, [id]);
 
-    if (loading) return <p className="detail-status">Loading...</p>;
-    if (error) return <p className="detail-status error-text">{error}</p>;
-    if (!event) return null;
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-    return (
-        <div className="detail-page">
-            <Link to="/" className="detail-back">← Back to events</Link>
+  if (loading) return <p className="detail-status">Loading...</p>;
+  if (error) return <p className="detail-status error-text">{error}</p>;
+  if (!event) return null;
 
-            <div className="detail-tags">
-                {event.tags.map((tag) => (
-                <span key={tag.id} className="event-tag">{tag.name}</span>
-                ))}
-            </div>
+  return (
+    <div className="detail-page">
+      <Link to="/" className="detail-back">
+        ← Back to events
+      </Link>
 
-            <h1 className="detail-title">{event.title}</h1>
-            <p className="detail-org">by {event.organization_name}</p>
+      <EventTagList tags={event.tags} className="detail-tags" />
 
-            <div className="detail-info">
-                <p><strong>When:</strong> {formatDate(event.start_datetime)} – {formatDate(event.end_datetime)}</p>
-                <p><strong>Where:</strong> {event.location}</p>
-                {event.capacity && <p><strong>Capacity:</strong> {event.capacity} spots</p>}
-            </div>
+      <h1 className="detail-title">{event.title}</h1>
+      <p className="detail-org">by {event.organization_name}</p>
 
-            <p className="detail-desc">{event.description}</p>
+      <EventInfoBox event={event} formatDate={formatDate} />
 
-            <div className="detail-register">
-                {event.registration_type === "built_in" && (
-                    <button className="btn-primary">Register</button>
-                )}
-                {event.registration_type === "external" && (
-                    <a className="btn-primary" href={event.external_url} target="_blank" rel="noopener noreferrer">
-                        Register on external site
-                    </a>
-                )}
-                {event.registration_type === "none" && (
-                    <p className="detail-noreg">No registration required — just show up!</p>
-                )}
-            </div>
-        </div>
-    );
+      <p className="detail-desc">{event.description}</p>
+
+      <EventRegistrationBox event={event} />
+    </div>
+  );
 }
-    
+
 export default EventDetail;

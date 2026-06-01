@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { GraduationCap } from "../components/Icons";
+import { GraduationCap } from "../components/reusable/Icons";
 import "./css/Login.css";
 
 function Login() {

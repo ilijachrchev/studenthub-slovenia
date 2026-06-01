@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./css/Register.css";
-import { GraduationCap, Building, CheckCircle, ChevronRight } from "../components/Icons";
+import { GraduationCap, Building, CheckCircle, ChevronRight } from "../components/reusable/Icons";
 
 function Register() {
   const navigate = useNavigate();

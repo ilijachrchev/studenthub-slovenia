@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { GraduationCap } from "../components/Icons";
+import { GraduationCap } from "../components/reusable/Icons";
 import "./css/SetupFeed.css";
 
 
