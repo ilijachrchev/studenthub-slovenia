@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./css/Home.css";
 import { Sparkle } from "../components/Icons";
+import { Link } from "react-router-dom";
 
 function Home() {
   const [events, setEvents] = useState([]);
@@ -48,36 +49,38 @@ function Home() {
       ) : (
         <div className="event-list">
           {events.map((event) => (
-            <div key={event.id} className="event-card">
-              <div className="event-card-header"> 
-                <div className="event-tags">
-                  {event.tags.map((tag) => (
-                    <span key={tag.id} className="event-tag">{tag.name}</span>
-                  ))}
+            <Link key={event.id} to={`/events/${event.id}`} className="event-card-link">
+              <div key={event.id} className="event-card">
+                <div className="event-card-header"> 
+                  <div className="event-tags">
+                    {event.tags.map((tag) => (
+                      <span key={tag.id} className="event-tag">{tag.name}</span>
+                    ))}
+                  </div>
+                  {event.score > 0 && (
+                    <span className="event-badge">
+                      <Sparkle size={13} />
+                      Recommended For You!
+                    </span>
+                  )}
                 </div>
-                {event.score > 0 && (
-                  <span className="event-badge">
-                    <Sparkle size={13} />
-                    Recommended For You!
-                  </span>
-                )}
+
+                <h2 className="event-title">{event.title}</h2>
+                <p className="event-org">by {event.organization_name}</p>
+                <p className="event-meta">
+                  {formatDate(event.start_datetime)} · {event.location}
+                </p>
+                <p className="event-desc">{event.description}</p>
+
+                <span className="event-reg">
+                  {event.registration_type === "external"
+                    ? "External registration"
+                    : event.registration_type === "none"
+                    ? "No registration"
+                    : "Registration available"}
+                </span>
               </div>
-
-              <h2 className="event-title">{event.title}</h2>
-              <p className="event-org">by {event.organization_name}</p>
-              <p className="event-meta">
-                {formatDate(event.start_datetime)} · {event.location}
-              </p>
-              <p className="event-desc">{event.description}</p>
-
-              <span className="event-reg">
-                {event.registration_type === "external"
-                  ? "External registration"
-                  : event.registration_type === "none"
-                  ? "No registration"
-                  : "Registration available"}
-              </span>
-            </div>
+            </Link>
           ))}
         </div>
       )}

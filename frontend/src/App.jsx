@@ -5,6 +5,7 @@ import SetupOrganization from "./pages/SetupOrganization";
 import SetupFeed from "./pages/SetupFeed";
 import ApplicationStatus from "./pages/ApplicationStatus";
 import Home from "./pages/Home";
+import EventDetail from "./pages/EventDetail";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/setup-organization" element={<SetupOrganization />} />
         <Route path="/setup-feed" element={<SetupFeed />} />
         <Route path="/application-status" element={<ApplicationStatus />} />
+        <Route path="/events/:id" element={<EventDetail />} />
       </Routes>
     </BrowserRouter>
   );
