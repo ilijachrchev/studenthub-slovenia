@@ -156,6 +156,11 @@
   }
 
   .student-content-grid {
-    padding: 16px;
+    display: grid;
+    grid-template-columns: minmax(520px, 1fr) 320px;
+    gap: 24px;
+    padding: 28px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import HomeHeader from "../components/home/HomeHeader";
 import EventList from "../components/home/EventList";
+import HomeHero from "../components/home/HomeHero";
 import "./css/Home.css";
 
 function Home() {
@@ -34,7 +34,7 @@ function Home() {
 
   return (
     <div className="home-page">
-      <HomeHeader />
+      <HomeHero />
       <EventList events={events} />
     </div>
   );
