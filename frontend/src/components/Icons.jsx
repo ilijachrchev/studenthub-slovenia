@@ -33,3 +33,11 @@ export function ChevronRight({ size = 20 }) {
     </svg>
   );
 }
+
+export function Sparkle({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z" />
+    </svg>
+  );
+}

@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import "./css/Home.css";
+import { Sparkle } from "../components/Icons";
 
 function Home() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     async function loadEvents() {
       try {
-        const res = await fetch("/api/events");
+        const res = await fetch("/api/events", { credentials: "include" });
         const data = await res.json();
         if (!res.ok) {
           setError(data.error || "Failed to load events");
@@ -51,6 +53,12 @@ function Home() {
                 {event.tags.map((tag) => (
                   <span key={tag.id} className="event-tag">{tag.name}</span>
                 ))}
+                {event.score > 0 && (
+                  <span className="event-badge">
+                    <Sparkle size={13} />
+                    Recommended For You!
+                  </span>
+                )}
               </div>
 
               <h2 className="event-title">{event.title}</h2>

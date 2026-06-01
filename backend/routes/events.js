@@ -38,10 +38,57 @@ router.get("/", async (req, res) => {
       tagsByEvent[row.event_id].push({ id: row.id, name: row.name });
     }
 
-    const result = events.map((event) => ({
+    let result = events.map((event) => ({
       ...event,
       tags: tagsByEvent[event.id] || [],
+      score: 0,
     }));
+
+    // personalization, WILL PROBABLY NEED IMPROVMENT!
+    if (req.session.user) {
+      const userId = req.session.user.id;
+
+      const [profileRows] = await pool.query(
+        "SELECT faculty_id FROM student_profile WHERE user_id = ?",
+        [userId]
+      );
+
+      const [interestRows] = await pool.query(
+        "SELECT tag_id FROM user_interest WHERE user_id = ?",
+        [userId]
+      );
+
+      const [targetRows] = await pool.query(
+        "SELECT event_id, faculty_id FROM event_target WHERE event_id IN (?)",
+        [eventIds]
+      );
+
+      const userFacultyId = profileRows.length ? profileRows[0].faculty_id : null;
+      const userTagIds = interestRows.map((row) => row.tag_id);
+
+      const targetsByEvent = {};
+      for (const row of targetRows) {
+        if (!targetsByEvent[row.event_id]) {
+          targetsByEvent[row.event_id] = [];
+        }
+        targetsByEvent[row.event_id].push(row.faculty_id);
+      }
+
+      result = result.map((event) => {
+        const tagMatches = event.tags.filter((tag) => userTagIds.includes(tag.id)).length;
+        const facultyMatch = userFacultyId && targetsByEvent[event.id]?.includes(userFacultyId) ? 1: 0;
+        return { ...event, score: tagMatches + facultyMatch };
+      });
+
+      // most relevanat + newest
+      result.sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return new Date(a.start_datetime) - new Date(b.start_datetime);
+      });
+    }
+
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
