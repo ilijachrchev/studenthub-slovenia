@@ -49,10 +49,12 @@ function Home() {
         <div className="event-list">
           {events.map((event) => (
             <div key={event.id} className="event-card">
-              <div className="event-tags">
-                {event.tags.map((tag) => (
-                  <span key={tag.id} className="event-tag">{tag.name}</span>
-                ))}
+              <div className="event-card-header"> 
+                <div className="event-tags">
+                  {event.tags.map((tag) => (
+                    <span key={tag.id} className="event-tag">{tag.name}</span>
+                  ))}
+                </div>
                 {event.score > 0 && (
                   <span className="event-badge">
                     <Sparkle size={13} />

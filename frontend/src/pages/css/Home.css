@@ -35,11 +35,18 @@
   box-shadow: 0 4px 16px rgba(3, 4, 94, 0.08);
 }
 
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .event-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
 }
 
 .event-tag {
@@ -88,6 +95,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
   background: linear-gradient(90deg, #03045e, #0077b6);
   color: #fff;
   font-size: 11px;
@@ -95,7 +104,6 @@
   letter-spacing: 0.02em;
   padding: 4px 11px;
   border-radius: 999px;
-  margin-bottom: 10px;
 }
 
 .event-badge-icon {
