@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import logo from "../../assets/logo.png";
 
 function Sidebar() {
 
@@ -16,7 +17,9 @@ function Sidebar() {
 
     return (
         <div className='app-sidebar'>
-            <div className='sidebar-logo'>StudentHub</div>
+            <div className='sidebar-logo'>
+                <img src={logo} alt="StudentHub" className='sidebar-logo-img' />
+            </div>
 
             <nav className='sidebar-nav'>
                 {links.map((link) => (

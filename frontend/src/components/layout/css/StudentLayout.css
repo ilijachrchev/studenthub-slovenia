@@ -122,6 +122,12 @@
   color: #6b7280;
 }
 
+.sidebar-logo-img {
+    width: 180px;
+    height: auto;
+    display: block;
+}
+
 @media (max-width: 1100px) {
   .student-content-grid {
     grid-template-columns: 1fr;
