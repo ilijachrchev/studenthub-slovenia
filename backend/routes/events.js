@@ -169,7 +169,7 @@ router.get("/:id/registration", async (req, res) => {
 });
 
 // /api/events/:id/register POST method
-router.post("/:id/register", async (req, res) => {
+router.post("/:id/registration", async (req, res) => {
   try {
     if (!req.session.user) {
       return res.status(401).json({error: "You must be logged in to register!"});
