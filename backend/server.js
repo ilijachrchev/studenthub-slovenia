@@ -7,6 +7,8 @@ const organizationsRoutes = require("./routes/organizations");
 const lookupRoutes = require("./routes/lookups");
 const studentRoutes = require("./routes/student");
 const eventRoutes = require("./routes/events");
+const registrationsRoutes = require("./routes/registrations");
+
 
 const app = express();
 const PORT = 30011;
@@ -35,6 +37,7 @@ app.use("/api/organizations", organizationsRoutes);
 app.use("/api", lookupRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/registrations", registrationsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

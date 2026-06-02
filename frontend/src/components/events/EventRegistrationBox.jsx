@@ -16,7 +16,7 @@ function EventRegistrationBox({ event }) {
 
     async function loadRegistration() {
       try { 
-        const res = await fetch(`/api/events/${event.id}/registration`, {
+        const res = await fetch(`/api/registrations/${event.id}`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -34,7 +34,7 @@ function EventRegistrationBox({ event }) {
     setError("");
     setWorking(true);
     try {
-      const res = await fetch(`/api/events/${event.id}/registration`, {
+      const res = await fetch(`/api/registrations/${event.id}`, {
         method: "POST",
         credentials: "include",
       });
@@ -56,7 +56,7 @@ function EventRegistrationBox({ event }) {
     setError("");
     setWorking(true);
     try {
-      const res = await fetch(`/api/events/${event.id}/registration`, {
+      const res = await fetch(`/api/registrations/${event.id}`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -1,0 +1,91 @@
+.myreg-page {
+  max-width: 900px;
+}
+
+.myreg-header {
+  margin-bottom: 20px;
+}
+
+.myreg-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 4px;
+}
+
+.myreg-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.myreg-status {
+  color: #6b7280;
+  padding: 24px 0;
+}
+
+.myreg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.myreg-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.myreg-info {
+  min-width: 0;
+}
+
+.myreg-event-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.myreg-org {
+  font-size: 14px;
+  color: #0077b6;
+  margin: 4px 0 8px;
+}
+
+.myreg-meta {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 2px 0;
+}
+
+.myreg-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #caf0f8;
+  color: #03045e;
+}
+
+.myreg-badge.checked {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.myreg-ticket {
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .myreg-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
