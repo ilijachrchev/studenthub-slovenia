@@ -1,10 +1,13 @@
-function HomeFilters() {
-  const filters = ["All", "Hackathon", "Workshop", "Lecture", "Career"];
-
+function HomeFilters({filters, active, onChange}) {
   return (
     <div className="home-filters">
       {filters.map((filter) => (
-        <button key={filter} className={filter === "All" ? "filter-chip active" : "filter-chip"}>
+        <button 
+          key={filter}
+          type="button" 
+          className={filter === active ? "filter-chip active" : "filter-chip"}
+          onClick={() => onChange(filter)}  
+        >
           {filter}
         </button>
       ))}

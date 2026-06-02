@@ -1,8 +1,12 @@
 import EventCard from "./EventCard";
 
-function EventList({ events }) {
+function EventList({ events, activeFilter = "All" }) {
   if (events.length === 0) {
-    return <p className="home-status">No events yet. Check back soon.</p>;
+    const message =
+      activeFilter === "All"
+        ? "No events yet. Check back soon!"
+        : `No events found for "${activeFilter}".`;
+    return <p className="home-status">{message}</p>;
   }
 
   return (
