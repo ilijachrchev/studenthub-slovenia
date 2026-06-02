@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import EventDetail from "./pages/EventDetail";
 import StudentLayout from "./components/layout/StudentLayout";
 import { AuthProvider } from "./context/AuthContext";
+import MyRegistrations from "./pages/MyRegistrations";
+
 
 export default function App() {
   return (
@@ -27,6 +29,11 @@ export default function App() {
           <Route path="/events/:id" element={
             <StudentLayout>
               <EventDetail />
+            </StudentLayout>  
+          } />
+          <Route path="/my-registrations" element={
+            <StudentLayout>
+              <MyRegistrations />
             </StudentLayout>  
           } />
         </Routes>

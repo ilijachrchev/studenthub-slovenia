@@ -9,7 +9,6 @@ function Sidebar() {
         {label: 'Home', path: '/'},
         {label: "Search", path: '/search'},
         {label: "Saved", path: '/saved'},
-        {label: "My Events", path: '/my-events'},
         {label: "My Registrations", path: '/my-registrations'},
         {label: "Profile", path: '/profile'},
         {label: "Settings", path: '/settings'},

@@ -130,13 +130,13 @@ router.get("/", async (req, res) => {
 
         const [rows] = await pool.query(
             `SELECT r.id, r.event_id, r.registered_at, r.ticket_code, r.checked_in,
-                    e.title, e.start_datetime, e.end_datetime, e.location
+                    e.title, e.start_datetime, e.end_datetime, e.location,
                     o.name AS organization_name
                     FROM registration r
                     JOIN event e ON r.event_id = e.id
                     JOIN organization o ON e.organization_id = o.id
                     WHERE r.user_id = ?
-                    ORDER BY e.start_time ASC`, 
+                    ORDER BY e.start_datetime ASC`, 
                     [req.session.user.id]
         );
         res.json(rows);
