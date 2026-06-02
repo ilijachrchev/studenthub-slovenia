@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { GraduationCap } from "../components/reusable/Icons";
 import "./css/SetupFeed.css";
+import { useAuth } from "../context/AuthContext";
 
 
 function SetupFeed() {
@@ -16,6 +17,8 @@ function SetupFeed() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const {refreshUser} = useAuth();
 
   useEffect(() => {
     async function loadData() {
@@ -67,6 +70,7 @@ function SetupFeed() {
         return;
       }
 
+      await refreshUser();
       navigate("/");
     } catch {
         setError('Failed to save preferences');
