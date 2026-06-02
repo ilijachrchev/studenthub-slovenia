@@ -32,6 +32,37 @@
   color: rgba(255, 255, 255, 0.86);
 }
 
+.home-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-chip {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--primary);
+}
+
+.filter-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
 .home-status {
   text-align: center;
   color: #6b7280;
