@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { GraduationCap } from "../components/reusable/Icons";
 import "./css/Login.css";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const {refreshUser} = useAuth();
 
   const handleLogin = async () => {
     setError("");
@@ -30,6 +33,7 @@ function Login() {
         return;
       }
 
+      await refreshUser();
       navigate("/");
     } catch (error) {
       setError("Something went wrong. Please try again!")
