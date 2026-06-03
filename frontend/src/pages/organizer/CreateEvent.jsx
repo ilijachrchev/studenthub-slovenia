@@ -52,9 +52,7 @@ function CreateEvent() {
             prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]    
         );
 
-    const handleSaveDraft = async () => {
-        setError("");
-
+    const validate = () => {
         if (!title || !location || !startDatetime || !endDatetime) {
             setError("Title, location, start and end date/time are required");
             return;
@@ -71,9 +69,10 @@ function CreateEvent() {
             setError("An external registration link is required");
             return;
         }
-
-        setLoading(true);
-
+        return true;
+    };
+        
+    const createEvent = async () => {
         try {
             const res = await fetch("/api/organizer/events", {
                 method: "POST",
@@ -95,13 +94,54 @@ function CreateEvent() {
 
             if (!res.ok) {
                 setError(data.error || "Failed to create event");
+                return null;
+            }
+
+            return data.eventId;
+        } catch {
+            setError("Something went wrong. Please try again.");
+            return null;
+        }
+    };
+
+    const handleSaveDraft = async () => {
+        setError("");
+        if (!validate()) return;
+
+        setLoading(true);
+        const id = await createEvent();
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+        navigate("/organizer");
+    };
+
+    const handleSubmit = async () => {
+        setError("");
+        if (!validate()) return;
+
+        setLoading(true);
+        const id = await createEvent();
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/organizer/events/${id}/submit`, {
+                method: "POST",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                setError(data.error || "Created as draft, but coudn't submit it");
                 setLoading(false);
                 return;
             }
-
             navigate("/organizer");
         } catch {
-            setError("Something went wrong. Please try again.");
+            setError("Created as draft, but coulnd't submit it");
             setLoading(false);
         }
     };
@@ -109,10 +149,15 @@ function CreateEvent() {
     return (
         <div className="create-event">
             <div className="create-event-header">
-                <h1>Create Event</h1>
-                <button className="btn-primary" onClick={handleSaveDraft} disabled={loading}>
-                    {loading ? "Saving..." : "Save Draft"}
-                </button>
+                <h1>Create New Event</h1>
+                <div className="create-event-actions">
+                    <button className="btn-secondary" onClick={handleSaveDraft} disabled={loading}>
+                        Save Draft
+                    </button>
+                    <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+                        {loading ? "Working..." : "Submit for approval"}
+                    </button>
+                </div>
             </div>
 
             {error && <p className="error-text">{error}</p>}

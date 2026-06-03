@@ -64,3 +64,29 @@
     color: #03045e;
     font-weight: 600;
 }
+
+.create-event-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #03045e;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #f5f6fa;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
