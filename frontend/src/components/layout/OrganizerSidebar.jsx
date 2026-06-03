@@ -17,7 +17,7 @@ function OrganizerSidebar () {
             </div>
 
             <nav className="sidebar-nav">
-                {links.map((link) => {
+                {links.map((link) => (
                     <Link
                         key={link.path}
                         to={link.path}
@@ -25,7 +25,7 @@ function OrganizerSidebar () {
                     >
                         {link.label}
                     </Link>
-                })}
+                ))}
             </nav>
         </div>
     )
