@@ -2,13 +2,17 @@ require("dotenv").config()
 const express = require('express');
 const pool = require("./db");
 const session = require("express-session");
+
 const authRoutes = require("./routes/auth");
-const organizationsRoutes = require("./routes/organizations");
 const lookupRoutes = require("./routes/lookups");
 const studentRoutes = require("./routes/student");
 const eventRoutes = require("./routes/events");
 const registrationsRoutes = require("./routes/registrations");
+
+const organizationsRoutes = require("./routes/organizations");
 const organizerRoutes = require("./routes/organizer");
+
+const adminRoutes = require("./routes/admin");
 
 
 const app = express();
@@ -34,12 +38,15 @@ app.get('/api', (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/organizations", organizationsRoutes);
 app.use("/api", lookupRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/registrations", registrationsRoutes);
+
+app.use("/api/organizations", organizationsRoutes);
 app.use("/api/organizer", organizerRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

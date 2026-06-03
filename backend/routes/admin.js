@@ -1,0 +1,115 @@
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const pool = require("../db");
+
+const router = express.Router();
+
+// /api/admin/events/pending GET method
+router.get("/events/pending", async (req, res) => { 
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({error: "Only adming can access this" });
+        }
+
+        const [events] = await pool.query(
+            `SELECT e.id, e.title, e.description, e.location,
+            e.start_datetime, e.end_datetime, e.registration_type, e.capacity,
+            o.name AS organizer_name
+            FROM event e
+            JOIN organization o ON o.id = e.organization_id
+            WHERE e.status = 'submitted'
+            ORDER BY e.created_at ASC`
+        );
+
+        res.json({ events });
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+});
+
+// /api/admin/events/:id/approve POST method
+router.post("/events/:id/approve", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can approve events" });
+        }
+
+        const [result] = await pool.query(
+            "UPDATE event SET status = 'published' WHERE id = ? AND status = 'submitted'",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "Event not found or not awaiting approval" });
+        }
+
+        res.json({ message: "Event published" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// /api/admin/events/:id/rejected POST method
+router.post("/events/:id/reject", async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: "Not logged in" });
+    }
+    if (req.session.user.role !== "admin") {
+        return res.status(403).json({ error: "Only admins can reject events" });
+    }
+
+    const {reason} = req.body;
+    if (!reason || !reason.trim()) {
+        return res.status(400).json({ error: "Rejection reason is required" });
+    }
+
+    try {
+        const [admins] = await pool.query(
+            "SELECT id FROM admin WHERE user_id = ?",
+            [req.session.user.id]
+        );
+
+        if (admins.length === 0) {
+            return res.status(403).json({ error: "Admin record not found for this account" });
+        }
+
+        const adminId = admins[0].id;
+        const connection = await pool.getConnection();
+        try{
+            await connection.beginTransaction();
+
+            const [result] = await connection.query(
+                "UPDATE event SET status = 'rejected' WHERE id = ? AND status = 'submitted'",
+                [req.params.id]
+            );
+
+            if (result.affectedRows === 0) {
+                await connection.rollback();
+                return res.status(400).json({ error: "Event not found or not awaiting approval" });
+            }
+
+            await connection.query(
+                "INSERT INTO event_rejection (event_id, admin_id, reason) VALUES (?, ?, ?)",
+                [req.params.id, adminId, reason.trim()]
+            );
+
+            await connection.commit();
+            res.json({ message: "Event rejected" });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        } finally {
+            connection.release();
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+module.exports = router;
