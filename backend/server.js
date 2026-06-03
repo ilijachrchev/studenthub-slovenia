@@ -8,6 +8,7 @@ const lookupRoutes = require("./routes/lookups");
 const studentRoutes = require("./routes/student");
 const eventRoutes = require("./routes/events");
 const registrationsRoutes = require("./routes/registrations");
+const organizerRoutes = require("./routes/organizer");
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use("/api", lookupRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/registrations", registrationsRoutes);
+app.use("/api/organizer", organizerRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
