@@ -9,6 +9,7 @@ import EventDetail from "./pages/EventDetail";
 import StudentLayout from "./components/layout/StudentLayout";
 import OrganizerLayout from "./components/layout/OrganizerLayout";
 import OrganizerDashboard from "./pages/organizer/OrganizerDashboard";
+import CreateEvent from "./pages/organizer/CreateEvent";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -41,6 +42,11 @@ export default function App() {
           <Route path="/organizer" element={
             <OrganizerLayout>
               <OrganizerDashboard />
+            </OrganizerLayout>  
+          } />
+          <Route path="/organizer/events/new" element={
+            <OrganizerLayout>
+              <CreateEvent />
             </OrganizerLayout>  
           } />
         </Routes>
