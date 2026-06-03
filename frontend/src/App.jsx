@@ -7,6 +7,8 @@ import ApplicationStatus from "./pages/ApplicationStatus";
 import Home from "./pages/Home";
 import EventDetail from "./pages/EventDetail";
 import StudentLayout from "./components/layout/StudentLayout";
+import OrganizerLayout from "./components/layout/OrganizerLayout";
+import OrganizerDashboard from "./pages/organizer/OrganizerDashboard";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -35,6 +37,11 @@ export default function App() {
             <StudentLayout>
               <MyRegistrations />
             </StudentLayout>  
+          } />
+          <Route path="/organizer" element={
+            <OrganizerLayout>
+              <OrganizerDashboard />
+            </OrganizerLayout>  
           } />
         </Routes>
       </AuthProvider>

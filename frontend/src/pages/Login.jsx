@@ -34,7 +34,7 @@ function Login() {
       }
 
       await refreshUser();
-      navigate("/");
+      navigate(data.user.role === "organizer" ? "/organizer" : "/");
     } catch (error) {
       setError("Something went wrong. Please try again!")
       setLoading(false);
