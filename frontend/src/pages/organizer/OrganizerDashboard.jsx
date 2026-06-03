@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/OrganizerDashboard.css";
 
@@ -26,37 +26,55 @@ function OrganizerDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const loadEvents = useCallback(async () => {
+        const res = await fetch("/api/organizer/events", { credentials: "include"});
+        if (!res.ok) {
+            const data = await res.json();
+            setError(data.error || "Failed to load events");
+            return;
+        }
+        const data = await res.json();
+        setEvents(data.events);
+    }, []);
+
     useEffect(() => {
-        async function load() {
+        async function init() {
             try {
-                const [orgRes, eventsRes] = await Promise.all([
-                    fetch("/api/organizations/my-application", { credentials: "include" }),
-                    fetch("/api/organizer/events", { credentials: "include" }),
-                ]);
-
-                if (!eventsRes.ok) {
-                    const data = await eventsRes.json();
-                    setError(data.error || "Failed to load events");
-                    return;
-                }
-
-                const eventsData = await eventsRes.json();
-                setEvents(eventsData.events);
-
+                const orgRes = await fetch("/api/organizations/my-application", {credentials: "include"});
                 if (orgRes.ok) {
                     const orgData = await orgRes.json();
+
                     if (orgData.hasApplication) {
                         setOrganization(orgData.organization);
                     }
                 }
+                await loadEvents();
             } catch {
-                setError("Something went wrong. Please try again later.");
+                setError("Something went wrong. Please try again.");
             } finally {
                 setLoading(false);
             }
         }
-        load();
-    }, []);
+        init();
+    }, [loadEvents]);
+
+    const handleSubmit = async (eventId) => {
+        try {
+            const res = await fetch(`/api/organizer/events/${eventId}/submit`, {
+                method: "POST",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                setError(data.error || "Filaed to submit event");
+                return;
+            }
+            setError("");
+            await loadEvents();
+        } catch {
+            setError("Something went wrong. Please try again")
+        }
+    }
 
     if (loading) {
         return <p className="dashboard-status">Loading...</p>
@@ -84,6 +102,8 @@ function OrganizerDashboard() {
                 </button>
             </div>
 
+            {error && <p className="error-text">{error}</p>}
+
             {events.length === 0 ? (
                 <p className="dashboard-status">No events yet. Create your first one.</p>
             ) : (
@@ -104,9 +124,18 @@ function OrganizerDashboard() {
                                                 {formatDate(event.start_datetime)} · {event.location}
                                             </p>
                                         </div>
-                                        <span className={`status badge status-${event.status}`}>
-                                            {event.status}
-                                        </span>
+
+                                        <div className="dashboard-event-actions">
+                                            {event.status === "draft" && (
+                                                <button className="btn-small" onClick={() => handleSubmit(event.id)}>
+                                                    Submit for Approval
+                                                </button>
+                                            )}
+                                        
+                                            <span className={`status-badge status-${event.status}`}>
+                                                {event.status}
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

@@ -129,5 +129,38 @@ router.post("/events", async (req, res) => {
     }
 });
 
+// /api/organizer/events/:id POST method
+router.post("/events/:id/submit" , async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({error: "Not logged in"});
+        }
+        if (req.session.user.role !== "organizer") {
+            return res.status(403).json({error: "Only organizers can submit events"});
+        }
+
+        const eventId = req.params.id;
+
+        const [rows] = await pool.query(
+            `SELECT e.id, e.status FROM event e
+            JOIN organizer_profile op ON op.organization_id = e.organization_id
+            WHERE e.id = ? AND op.user_id = ?`,
+            [eventId, req.session.user.id]
+        );
+        if (rows.length === 0) {
+            return res.status(404).json({error: "Event not found"});
+        }
+        if (rows[0].status !== "draft") {
+            return res.status(400).json({error: " Only draft events can be submitted"});
+        }
+
+        await pool.query("UPDATE event SET status = 'submitted' WHERE id = ?", [eventId]);
+
+        res.json({message: "Event submitted for approval"});
+    } catch {
+        res.status(500).json({error: error.message});
+    }
+});
+
 
 module.exports = router;
