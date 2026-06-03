@@ -1,0 +1,16 @@
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-main-content {
+    flex: 1;
+    padding: 24px 32px;
+}
