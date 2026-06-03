@@ -106,6 +106,59 @@ function CreateEvent() {
         }
     };
 
+    return (
+        <div className="create-event">
+            <div className="create-event-header">
+                <h1>Create Event</h1>
+                <button className="btn-primary" onClick={handleSaveDraft} disabled={loading}>
+                    {loading ? "Saving..." : "Save Draft"}
+                </button>
+            </div>
+
+            {error && <p className="error-text">{error}</p>}
+
+            <EventBasicDetails 
+                title={title}
+                description={description}
+                onTitleChange={setTitle}
+                onDescriptionChange={setDescription}
+            />
+
+            <EventTimeLocation
+                location={location}
+                startDatetime={startDatetime}
+                endDatetime={endDatetime}
+                onLocationChange={setLocation}
+                onStartChange={setStartDatetime}
+                onEndChange={setEndDatetime}
+            />
+
+            <EventRegistrationType 
+                registrationType={registrationType}
+                capacity={capacity}
+                externalUrl={externalUrl}
+                onTypeChange={setRegistrationType}
+                onCapacityChange={setCapacity}
+                onExternalUrlChange={setExternalUrl}
+            />
+
+            <ChipMultiSelect 
+                title="Tags"
+                required
+                items={tags}
+                selectedIds={selectedTags}
+                onToggle={toggleTag}
+            />
+
+            <ChipMultiSelect 
+                title="Target Faculties"
+                required
+                items={faculties}
+                selectedIds={selectedFaculties}
+                onToggle={toggleFaculty}
+            />
+        </div>
+    );
 }
 
 export default CreateEvent;
