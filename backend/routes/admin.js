@@ -111,5 +111,83 @@ router.post("/events/:id/reject", async (req, res) => {
     }
 });
 
+// /api/admin/organizations/pending GET method
+router.get("/organizations/pending", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can access this" });
+        }
+
+        const [organizations] = await pool.query(
+            `SELECT o.id, o.name, o.description, o.description, o.website,
+            o.contact_email, o.university_id,
+            u.first_name, u.last_name, u.email AS applicant_email
+            FROM organization o
+            JOIN organizer_profile op ON op.organization_id = o.id AND op.role_in_org = 'owner'
+            JOIN user u ON u.id = op.user_id
+            WHERE o.status = 'pending'
+            ORDER BY o.id ASC`
+        );
+
+        res.json({ organizations });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// /api/admin/organizations/:id/approve POST method
+router.post("/organizations/:id/approve", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can approve organizations" });
+        }
+
+        const [result] = await pool.query(
+            "UPDATE organization SET status = 'approved', approved_at = NOW() WHERE id = ? AND status = 'pending'",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "Organization not found or not awaiting approval" });
+        }
+
+        res.json({ message: "Organization approved" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// /api/admin/organizations/:id/reject POST method
+router.post("/organizations/:id/reject", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can reject organizations" });
+        }
+
+        const [result] = await pool.query(
+            "UPDATE organization SET status = 'rejected' WHERE id = ? AND status = 'pending'",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "Organization not found or not awaiting approval" });
+        }
+
+        res.json({ message: "Organization rejected" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 
 module.exports = router;
