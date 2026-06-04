@@ -1,6 +1,6 @@
 import EventCard from "./EventCard";
 
-function EventList({ events, activeFilter = "All" }) {
+function EventList({ events, activeFilter = "All", savedIds = [], onToggleSave }) {
   if (events.length === 0) {
     const message =
       activeFilter === "All"
@@ -12,7 +12,12 @@ function EventList({ events, activeFilter = "All" }) {
   return (
     <div className="event-list">
       {events.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <EventCard 
+          key={event.id} 
+          event={event} 
+          saved={savedIds.includes(event.id)}
+          onToggleSave={onToggleSave}
+        />
       ))}
     </div>
   );

@@ -14,6 +14,8 @@ const organizerRoutes = require("./routes/organizer");
 
 const adminRoutes = require("./routes/admin");
 
+const bookmarksRoutes = require("./routes/bookmarks");
+
 
 const app = express();
 const PORT = 30011;
@@ -47,6 +49,8 @@ app.use("/api/organizations", organizationsRoutes);
 app.use("/api/organizer", organizerRoutes);
 
 app.use("/api/admin", adminRoutes);
+
+app.use("/api/bookmarks", bookmarksRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
