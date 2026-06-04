@@ -14,23 +14,27 @@ function Home() {
 
   const [tags, setTags] = useState([]);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [savedIds, setSavedIds] = useState([]);
 
   useEffect(() => {
     async function loadEvents() {
       try {
-        const [evetnsRes, tagsRes] = await Promise.all([
+        const [evetnsRes, tagsRes, savedRes] = await Promise.all([
           fetch("/api/events", { credentials: "include" }),
           fetch("/api/tags"),
+          fetch("/api/bookmarks/ids", {credentials: "include"}),
         ]);
 
         const eventsData = await evetnsRes.json();
         const tagsData = await tagsRes.json();
+        const savedData = await savedRes.json();
 
         if (!evetnsRes.ok) {
           setError(eventsData.error || "Failed to load events");
         } else {
           setEvents(eventsData);
           setTags(Array.isArray(tagsData) ? tagsData : []);
+          setSavedIds(savedData.ids || []);
         }
       } catch {
         setError("Failed to load events");
@@ -41,6 +45,30 @@ function Home() {
 
     loadEvents();
   }, []);
+
+  const handleToggleSave = async (eventId) => {
+    const isSaved = savedIds.includes(eventId);
+    setSavedIds((prev) => 
+      isSaved ? prev.filter((id) => id !== eventId) : [...prev, eventId]
+    );
+
+    try {
+      const res = await fetch(`/api/bookmarks/${eventId}`, {
+        method: isSaved ? "DELETE" : "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        setSavedIds((prev) =>
+          isSaved ? [...prev, eventId] : prev.filter((id) => id !== eventId)
+        );
+      }
+    } catch {
+      setSavedIds((prev) =>
+        isSaved ? [...prev, eventId] : prev.filter((id) => id !== eventId)
+      );
+    }
+  };
 
   if (loading) return <p className="home-status">Loading events…</p>;
   if (error) return <p className="home-status error-text">{error}</p>;
@@ -55,9 +83,9 @@ function Home() {
 
   const featuredEvents = events[0]?.score >= 0 ? events[0] : null;
 
-  const listEvents = featuredEvents
-        ? events.filter((event) => event.id !== featuredEvents.id)
-        : events;
+  // const listEvents = featuredEvents
+  //       ? events.filter((event) => event.id !== featuredEvents.id)
+  //       : events;
 
   return (
     <div className="home-page">
@@ -82,7 +110,12 @@ function Home() {
 
       {featuredEvents && <HomeHero event={featuredEvents}/>}
 
-      <EventList events={filteredEvents} activeFilter={activeFilter} />
+      <EventList 
+        events={filteredEvents} 
+        activeFilter={activeFilter}
+        savedIds={savedIds}
+        onToggleSave={handleToggleSave} 
+      />
     </div>
   );
 }
