@@ -1,0 +1,113 @@
+.feedback-page {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.feedback-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 28px;
+  width: min(520px, 100%);
+}
+
+.feedback-status {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 0;
+}
+
+.feedback-event {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.feedback-event h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #03045e;
+}
+
+.feedback-event-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.feedback-question {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.feedback-subtitle {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.feedback-stars {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.feedback-star-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+}
+
+.feedback-rating-label {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 8px 0 16px;
+}
+
+.feedback-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0 6px;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.feedback-back {
+  border: none;
+  background: none;
+  color: #03045e;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.feedback-done {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.feedback-thanks {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.feedback-existing {
+  color: #6b7280;
+  margin: 0 0 16px;
+}
