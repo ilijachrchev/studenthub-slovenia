@@ -26,4 +26,24 @@ router.get("/", async (req, res) => {
     } catch (error) {
         res.status(500).json({error: error.message})
     }
-})
+});
+
+// /api/bookmarks/ids GET method
+router.get("/ids", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.json({ ids: [] });
+        }
+
+        const [rows] = await pool.query(
+            "SELECT event_id FROM bookmark WHERE user_id = ?",
+            [req.session.user.id]
+        );
+
+        req.json({ ids: rows.map((row) => row.event_id) });
+    } catch (error) {
+        res.status(500).json({errro: error.message});
+    }
+});
+
+module.exports = router;
