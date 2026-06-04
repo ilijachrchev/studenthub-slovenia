@@ -84,5 +84,48 @@ router.get("/profile", async (req, res) => {
 });
 
 
+// /api/student/profile PUT method
+router.put("/profile", async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: "Not logged in"});
+    }
+    const userId = req.session.user.id;
+
+    const { faculty_id, study_year, tag_ids} = req.body;
+
+    if (!faculty_id) {
+        return res.status(400).json({error: "Faculty is required"});
+    }
+
+    const connection = await pool.getConnection();
+
+    try {
+        await connection.beginTransaction();
+
+        await connection.query(
+            "UPDATE student_profile SET faculty_id = ?, study_year = ? WHERE user_id = ?",
+            [faculty_id, study_year || null, userId]
+        );
+
+        await connection.query(
+            "DELETE FROM user_interest WHERE user_id = ?",
+            [userId]
+        );
+
+        if (Array.isArray(tag_ids) && tag_ids.length > 0) {
+            const values = tag_ids.map((tagId) => [userId, tagId]);
+            await connection.query("INSERT INTO user_interest (user_id, tag_id) VALUES ?", [values]);
+        }
+
+        await connection.commit();
+        res.json({message: "Preferences updated"});
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ error: error.message});
+    } finally {
+        connection.release();
+    }
+})
+
 
 module.exports = router;
