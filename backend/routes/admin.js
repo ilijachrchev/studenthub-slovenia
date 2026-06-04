@@ -163,6 +163,30 @@ router.post("/organizations/:id/approve", async (req, res) => {
     }
 });
 
+// /api/admin/organizations/:id/reject POST method
+router.post("/organizations/:id/reject", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can reject organizations" });
+        }
+
+        const [result] = await pool.query(
+            "UPDATE organization SET status = 'rejected', WHERE id = ? AND status = 'pending'",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "Organization not found or not awaiting approval" });
+        }
+
+        res.json({ message: "Organization rejected" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 
 
