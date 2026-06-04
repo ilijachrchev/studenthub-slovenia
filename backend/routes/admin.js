@@ -138,6 +138,32 @@ router.get("/organizations/pending", async (req, res) => {
     }
 });
 
+// /api/admin/organizations/:id/approve POST method
+router.post("/organizations/:id/approve", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "Not logged in" });
+        }
+        if (req.session.user.role !== "admin") {
+            return res.status(403).json({ error: "Only admins can approve organizations" });
+        }
+
+        const [result] = await pool.query(
+            "UPDATE organization SET status = 'approved', approved_at = NOW() WHERE id = ? AND status = 'pending'",
+            [req.params.id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "Organization not found or not awaiting approval" });
+        }
+
+        res.json({ message: "Organization approved" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 
 
 module.exports = router;
