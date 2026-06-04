@@ -17,7 +17,7 @@ router.post("/setup", async (req, res) => {
         return res.status(400).json({ error: "Faculty is required"});
     }
 
-    const [exisiting] = await poo.query(
+    const [exisiting] = await pool.query(
         "SELECT * FROM student_profile WHERE user_id = ?",
         [userId]
     );
