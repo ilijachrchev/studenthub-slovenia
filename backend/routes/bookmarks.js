@@ -46,4 +46,34 @@ router.get("/ids", async (req, res) => {
     }
 });
 
+// /api/bookmarks/:id POST method
+router.post("/:id", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            res.status(401).json({error: "Not logged in"})
+        }
+        
+        const userId = req.session.user.id;
+        const eventId = req.params.id;
+
+        const [existing] = await pool.query(
+            "SELECT id FROM bookmark WHERE user_id = ? AND event_id = ?",
+            [userId, eventId]
+        );
+        if (existing.length) {
+            return res.status(409).json({ error: "Event already saved" });
+        }
+
+        await pool.query(
+            "INSERT INTO bookmark (user_id, event_id) VALUES (?, ?)",
+            [userId, eventId]
+        );
+
+        res.status(201).json({message: "Event saved"});
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+});
+
+
 module.exports = router;
