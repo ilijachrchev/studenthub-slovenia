@@ -60,28 +60,41 @@ function MyRegistrations() {
                 </p>
             ) : (
                 <div className="myreg-list">
-                    {registrations.map((reg) => (
-                        <div className="myreg-card" key={reg.id}>
-                            <div className="myreg-info">
-                                <Link to={`/events/${reg.event_id}`} className="myreg-event-title">
-                                    {reg.title}
-                                </Link>
-                                <p className="myreg-org">by {reg.organization_name}</p>
-                                <p className="myreg-meta">{formatDate(reg.start_datetime)}</p>
-                                <p className="myreg-met">{reg.location}</p>
+                    {registrations.map((reg) => {
+                        const isPast = new Date(reg.end_datetime) < new Date();
+                        return (
+                            <div className="myreg-card" key={reg.id}>
+                                <div className="myreg-info">
+                                    <Link to={`/events/${reg.event_id}`} className="myreg-event-title">
+                                        {reg.title}
+                                    </Link>
+                                    <p className="myreg-org">by {reg.organization_name}</p>
+                                    <p className="myreg-meta">{formatDate(reg.start_datetime)}</p>
+                                    <p className="myreg-met">{reg.location}</p>
 
-                                {reg.checked_in ? (
-                                    <span className="myreg-badge checked">Checked in</span>
-                                ) : (
-                                    <span className="myreg-badge">Registered</span>
-                                )}
+                                    {reg.checked_in ? (
+                                        <span className="myreg-badge checked">Checked in</span>
+                                    ) : (
+                                        <span className="myreg-badge">Registered</span>
+                                    )}
+
+                                    {isPast && (
+                                        <Link
+                                            to={`/events/${reg.event_id}/feedback`}
+                                            className="feedback-back"
+                                            style={{ display: "inline-block", marginTop: "10px"}}
+                                        >
+                                            Leave Feedback
+                                        </Link>
+                                    )}
+                                </div>
+                                
+                                <div className="myreg-ticket">
+                                    <Ticket ticketCode={reg.ticket_code} />
+                                </div>
                             </div>
-                            
-                            <div className="myreg-ticket">
-                                <Ticket ticketCode={reg.ticket_code} />
-                            </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
         </div>

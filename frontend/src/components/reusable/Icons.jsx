@@ -71,3 +71,13 @@ export function Bookmark({ size = 20, filled = false }) {
     </svg>
   );
 }
+
+export function Star({ size = 28, filled = false }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+      fill={filled ? "#00b4d8" : "none"}
+      stroke={filled ? "#00b4d8" : "#cbd5e1"} strokeWidth="1.5" strokeLinejoin="round">
+      <path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2 2 9.4l7-.9z" />
+    </svg>
+  );
+}
