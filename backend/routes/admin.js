@@ -174,7 +174,7 @@ router.post("/organizations/:id/reject", async (req, res) => {
         }
 
         const [result] = await pool.query(
-            "UPDATE organization SET status = 'rejected', WHERE id = ? AND status = 'pending'",
+            "UPDATE organization SET status = 'rejected' WHERE id = ? AND status = 'pending'",
             [req.params.id]
         );
 
