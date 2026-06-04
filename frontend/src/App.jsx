@@ -14,6 +14,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import PendingEvents from "./pages/admin/PendingEvents";
 import PendingOrganizations from "./pages/admin/PendingOrganizations";
 import AccountSettings from "./pages/AccountSettings";
+import Saved from "./pages/Saved";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -66,6 +67,11 @@ export default function App() {
           <Route path="/settings" element={
             <StudentLayout>
               <AccountSettings />
+            </StudentLayout>  
+          } />
+          <Route path="/saved" element={
+            <StudentLayout>
+              <Saved />
             </StudentLayout>  
           } />
         </Routes>
