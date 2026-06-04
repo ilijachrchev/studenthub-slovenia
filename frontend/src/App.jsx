@@ -12,6 +12,7 @@ import OrganizerDashboard from "./pages/organizer/OrganizerDashboard";
 import CreateEvent from "./pages/organizer/CreateEvent";
 import AdminLayout from "./components/layout/AdminLayout";
 import PendingEvents from "./pages/admin/PendingEvents";
+import PendingOrganizations from "./pages/admin/PendingOrganizations";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -54,6 +55,11 @@ export default function App() {
           <Route path="/admin" element={
             <AdminLayout>
               <PendingEvents />
+            </AdminLayout>  
+          } />
+          <Route path="/admin/organizations" element={
+            <AdminLayout>
+              <PendingOrganizations />
             </AdminLayout>  
           } />
         </Routes>
