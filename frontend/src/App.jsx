@@ -15,6 +15,7 @@ import PendingEvents from "./pages/admin/PendingEvents";
 import PendingOrganizations from "./pages/admin/PendingOrganizations";
 import AccountSettings from "./pages/AccountSettings";
 import Saved from "./pages/Saved";
+import Feedback from "./pages/Feedback";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -72,6 +73,11 @@ export default function App() {
           <Route path="/saved" element={
             <StudentLayout>
               <Saved />
+            </StudentLayout>  
+          } />
+          <Route path="/events/:eventId/feedback" element={
+            <StudentLayout>
+              <Feedback />
             </StudentLayout>  
           } />
         </Routes>
