@@ -13,6 +13,7 @@ import CreateEvent from "./pages/organizer/CreateEvent";
 import AdminLayout from "./components/layout/AdminLayout";
 import PendingEvents from "./pages/admin/PendingEvents";
 import PendingOrganizations from "./pages/admin/PendingOrganizations";
+import AccountSettings from "./pages/AccountSettings";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -61,6 +62,11 @@ export default function App() {
             <AdminLayout>
               <PendingOrganizations />
             </AdminLayout>  
+          } />
+          <Route path="/settings" element={
+            <StudentLayout>
+              <AccountSettings />
+            </StudentLayout>  
           } />
         </Routes>
       </AuthProvider>
