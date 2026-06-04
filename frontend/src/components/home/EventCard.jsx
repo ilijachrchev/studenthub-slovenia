@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { Sparkle } from "../reusable/Icons";
+import { Sparkle, Bookmark } from "../reusable/Icons";
 import EventTagList from "../events/EventTagList";
 import EventRegistrationLabel from "./EventRegistrationLabel";
 
-function EventCard({ event }) {
+function EventCard({ event, saved = false, onToggleSave }) {
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleString("en-GB", {
       weekday: "short",
@@ -13,18 +13,37 @@ function EventCard({ event }) {
       minute: "2-digit",
     });
 
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleSave) onToggleSave(event.id);
+  };
+
   return (
     <Link to={`/events/${event.id}`} className="event-card-link">
       <div className="event-card">
         <div className="event-card-header">
-          <EventTagList tags={event.tags} />
+          <EventTagList tags={event.tags || []} />
 
-          {event.score > 0 && (
-            <span className="event-badge">
-              <Sparkle size={13} />
-              Recommended For You!
-            </span>
-          )}
+          <div className="event-card-header-right">
+            {event.score > 0 && (
+              <span className="event-badge">
+                <Sparkle size={13} />
+                Recommended For You!
+              </span>
+            )}
+
+            {onToggleSave && (
+              <button
+                type="button"
+                className={`event-save-btn ${saved ? "saved" : ""}`}
+                onClick={handleSaveClick}
+                aria-label={saved ? "Remove from saved" : "Save event"}
+              >
+                <Bookmark size={18} filled={saved} />
+              </button>
+            )}
+          </div>
         </div>
 
         <h2 className="event-title">{event.title}</h2>
