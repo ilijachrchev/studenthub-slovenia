@@ -75,5 +75,27 @@ router.post("/:id", async (req, res) => {
     }
 });
 
+// /api/bookmarks/:id DELETE method
+router.delete("/:id", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({error: "Not logged in"});
+        }
+
+        const [result] = await pool.query(
+            "DELETE FROM bookmark WHERE user_id = ? AND event_id = ?",
+            [req.session.user.id, req.params.id]
+        )
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({error: "No saved event to remove"});
+        }
+
+        res.json({message: "Event removed from saved"});
+    } catch (error) {
+        res.status(500).json({error: error.message})
+    }
+});
+
 
 module.exports = router;
