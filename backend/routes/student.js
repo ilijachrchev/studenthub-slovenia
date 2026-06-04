@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db");
+const { error } = require("node:console");
 
 const router = express.Router();
 
@@ -48,5 +49,40 @@ router.post("/setup", async (req, res) => {
         connection.release();
     }
 });
+
+// /api/student/profile GET method
+router.get("/profile", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({error: "Not logged in"});
+        }
+        const userId = req.session.user.id;
+
+        const [profiles] = await pool.query(
+            "SELECT faculty_id, study_year FROM student_profile WHERE user_id = ?",
+            [userId]
+        );
+
+        if (profiles.length === 0) {
+            return res.json({ hasProfile: false });
+        }
+
+        const [interests] = await pool.query(
+            "SELECT tag_id FROM user_interest WHERE user_id = ?",
+            [userId]
+        );
+
+        res.json({
+            hasProfile: true,
+            faculty_id: profiles[0].faculty_id,
+            study_year: profiles[0].study_year,
+            tag_ids: interests.map((row) => row.tag_id),
+        });
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+});
+
+
 
 module.exports = router;
