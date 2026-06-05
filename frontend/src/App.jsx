@@ -16,6 +16,7 @@ import PendingOrganizations from "./pages/admin/PendingOrganizations";
 import AccountSettings from "./pages/AccountSettings";
 import Saved from "./pages/Saved";
 import Feedback from "./pages/Feedback";
+import OrganizationProfile from "./pages/OrganizationProfile";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -38,6 +39,11 @@ export default function App() {
           <Route path="/events/:id" element={
             <StudentLayout>
               <EventDetail />
+            </StudentLayout>  
+          } />
+          <Route path="/organizations/:id" element={
+            <StudentLayout>
+              <OrganizationProfile />
             </StudentLayout>  
           } />
           <Route path="/my-registrations" element={
