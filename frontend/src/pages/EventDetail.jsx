@@ -56,7 +56,9 @@ function EventDetail() {
       <EventTagList tags={event.tags} className="detail-tags" />
 
       <h1 className="detail-title">{event.title}</h1>
-      <p className="detail-org">by {event.organization_name}</p>
+      <p className="detail-org">
+        by <Link to={`/organizations/${event.organization_id}`}>{event.organization_name}</Link>
+      </p>
 
       <EventInfoBox event={event} formatDate={formatDate} />
 

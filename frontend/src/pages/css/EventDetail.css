@@ -46,6 +46,13 @@
     color: #0077b6; 
     margin: 0 0 20px; 
 }
+.detail-org a {
+  color: inherit;
+  text-decoration: none;
+}
+.detail-org a:hover {
+  text-decoration: underline;
+}
 
 .detail-info { 
     background: #fff; 
