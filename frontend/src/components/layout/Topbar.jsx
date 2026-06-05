@@ -68,7 +68,11 @@ function Topbar() {
                 )}
 
                 {!loading && !user && (
-                    <button className="topbar-profile topbar-profile-guest">Sign In</button>
+                    <button className="topbar-profile topbar-profile-guest"
+                        onClick={() => navigate("/login")}
+                    >
+                        Sign In
+                    </button>
                 )}
             </div>
         </header>

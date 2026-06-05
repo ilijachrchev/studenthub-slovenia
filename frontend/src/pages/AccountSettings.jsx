@@ -11,6 +11,7 @@ function AccountSettings() {
   const [selectedTags, setSelectedTags] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -24,17 +25,22 @@ function AccountSettings() {
                 fetch("/api/student/profile", { credentials: "include"}),
             ]);
 
+            const profile = await profileRes.json();
+            if (!profileRes.ok) {
+                setLoadError(profile.error || "Not logged in");
+                return;
+            }
+
             setFaculties(await facultiesRes.json());
             setTags(await tagRes.json());
 
-            const profile = await profileRes.json();
             if (profile.hasProfile) {
                 setFacultyId(String(profile.faculty_id));
                 setStudyYear(profile.study_year ? String(profile.study_year) : "");
                 setSelectedTags(profile.tag_ids || []);
             }
         } catch {
-            setError("Failed to load your settings");
+            setLoadError("Failed to load your settings");
         } finally {
             setLoading(false);
         }
@@ -85,7 +91,8 @@ function AccountSettings() {
     }
   };
 
-  if (loading) return <p className="setup-subtitle">Loading...</p>
+  if (loading) return <p className="setup-subtitle">Loading...</p>;
+  if (loadError) return <p className="setup-subtitle">{loadError}</p>;
 
   return (
     <div className="account-settings">
