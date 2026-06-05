@@ -83,7 +83,7 @@ router.get("/:id", async (req, res) => {
 
         const [events] = await pool.query(
             `SELECT e.id, e.title, e.description, e.location,
-            e.start_datetime, e.end_datetime, e.registration_type,,
+            e.start_datetime, e.end_datetime, e.registration_type,
             o.name AS organization_name
             FROM event e
             JOIN organization o ON e.organization_id = o.id
@@ -98,7 +98,7 @@ router.get("/:id", async (req, res) => {
             const eventIds = events.map((event) => event.id);
             const [tagRows] = await pool.query(
                 `SELECT et.event_id, t.id, t.name
-                FROM event_Tag et
+                FROM event_tag et
                 JOIN tag t ON et.tag_id = t.id
                 WHERE et.event_id IN (?)`,
                 [eventIds]
