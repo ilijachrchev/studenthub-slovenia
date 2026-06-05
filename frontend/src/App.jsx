@@ -17,6 +17,7 @@ import AccountSettings from "./pages/AccountSettings";
 import Saved from "./pages/Saved";
 import Feedback from "./pages/Feedback";
 import OrganizationProfile from "./pages/OrganizationProfile";
+import SearchResults from "./pages/SearchResults";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -85,6 +86,11 @@ export default function App() {
             <StudentLayout>
               <Feedback />
             </StudentLayout>  
+          } />
+          <Route path="/search" element={
+            <StudentLayout>
+              <SearchResults />
+            </StudentLayout>
           } />
         </Routes>
       </AuthProvider>
