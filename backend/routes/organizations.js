@@ -126,7 +126,7 @@ router.get("/:id", async (req, res) => {
             .sort((a, b) => new Date(b.start_datetime) - new Date(a.start_datetime));
 
         res.json({organization, upcoming, past});
-    } catch (console.error() {
+    } catch (error) {
         res.status(500).json({error: error.message});
     }
 });
