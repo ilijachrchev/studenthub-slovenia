@@ -18,6 +18,8 @@ const bookmarksRoutes = require("./routes/bookmarks");
 
 const feedbackRoutes = require("./routes/feedback");
 
+const searchRoutes = require("./routes/search");
+
 
 const app = express();
 const PORT = 30011;
@@ -55,6 +57,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/bookmarks", bookmarksRoutes);
 
 app.use("/api/feedback", feedbackRoutes);
+
+app.use("/api/search", searchRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
