@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { useEffect, useState } from "react";
 
 function OrganizerSidebar () {
     const location = useLocation();
@@ -7,7 +8,6 @@ function OrganizerSidebar () {
     const links = [
         {label: "Dashboard", path: "/organizer"},
         {label: "Create Event", path: "/organizer/events/new"},
-        {label: "Profile", path: "organizer/profile"},
     ];
 
     return (
