@@ -3,6 +3,9 @@ const express = require('express');
 const pool = require("./db");
 const session = require("express-session");
 
+// deploy
+const path = require('path');
+
 const authRoutes = require("./routes/auth");
 const lookupRoutes = require("./routes/lookups");
 const studentRoutes = require("./routes/student");
@@ -60,6 +63,17 @@ app.use("/api/feedback", feedbackRoutes);
 
 app.use("/api/search", searchRoutes);
 
+
+// deploy
+const reactBuildPath = path.join(__dirname, './dist');
+app.use(express.static(reactBuildPath));
+
+app.get("/*splat", (req, res) => {
+  res.sendFile(path.join(reactBuildPath, "index.html"));
+})
+
+
+
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is listening to ${PORT}`);
 });
