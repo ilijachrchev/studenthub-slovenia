@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Bell } from "../reusable/Icons";
+import { Bell, LogoutKopce } from "../reusable/Icons";
 import { useEffect, useRef, useState } from "react";
 
 function Topbar() {
 
-    const {user, loading} = useAuth();
+    const {user, loading, refreshUser} = useAuth();
     const navigate = useNavigate();
     const [term, setTerm] = useState("");
     const timerRef = useRef(null);
@@ -42,6 +42,17 @@ function Topbar() {
         }
     };
 
+    const handleLogout = async (e) => {
+        try {
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch {}
+        await refreshUser();
+        navigate("/login");
+    }
+
     return (
         <header className="app-topbar">
             <input type="text" 
@@ -56,6 +67,17 @@ function Topbar() {
                 <button className="topbar-icon-button" aria-label="Notifications">
                     <Bell size={20} />
                 </button>
+
+                {!loading && user && (
+                    <button
+                        className="topbar-icon-button"
+                        aria-label="Log out"
+                        onClick={handleLogout}
+                        style={{ color: "#ff0000" }}
+                    >
+                        <LogoutKopce size={20} />
+                    </button>
+                )}
 
                 {!loading && user && (
                     <button className="topbar-profile">

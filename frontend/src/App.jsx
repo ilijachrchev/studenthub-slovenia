@@ -18,6 +18,7 @@ import Saved from "./pages/Saved";
 import Feedback from "./pages/Feedback";
 import OrganizationProfile from "./pages/OrganizationProfile";
 import SearchResults from "./pages/SearchResults";
+import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
 
@@ -33,6 +34,7 @@ export default function App() {
             </StudentLayout>
           } />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/setup-organization" element={<SetupOrganization />} />
           <Route path="/setup-feed" element={<SetupFeed />} />
