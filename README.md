@@ -91,8 +91,9 @@ node server.js          # starts on :30011
 ```
 DB_HOST=localhost
 DB_USER=studenti
-DB_PASSWORD=********
-DB_NAME=SISIII2026_89241041
+DB_PASS=********
+DB_DATABASE=SISIII2026_89241041
+DB_PORT=30011
 SESSION_SECRET=********
 ```
 
