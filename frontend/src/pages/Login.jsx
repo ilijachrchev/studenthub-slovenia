@@ -74,6 +74,10 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          <div style={{ textAlign: "right"}}>
+            <Link to="/reset-password">Reset Password</Link>
+          </div>
+
           {error && <p className="error-text">{error}</p>}
 
           <button

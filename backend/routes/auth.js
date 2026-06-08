@@ -111,11 +111,47 @@ router.get("/me", (req, res) => {
     }
 });
 
-// /api/auth/logout GET method
+// /api/auth/logout POST method
 router.post("/logout", (req, res) => {
     req.session.destroy(() => {
         res.json({ message: "Logged out" });
     });
 });
+
+// /api/auth/reset-password POST method
+router.post("/reset-password", async (req, res) => {
+    try {
+        const { email, current_password, new_password } = req.body;
+
+        if (!email || !current_password || !new_password) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const [users] = await pool.query(
+            "SELECT id, password_hash FROM user WHERE email = ?",
+            [email]
+        );
+        if (users.length === 0) {
+            return res.status(401).json({ error: "Invalid email or password" });
+        }
+
+        const match = await bcrypt.compare(current_password, users[0].password_hash);
+        if (!match) {
+            return res.status(401).json({ error: "Invalid email or password" });
+        }
+
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        await pool.query(
+            "UPDATE user SET password_hash = ? WHERE id = ?",
+            [hashedPassword, users[0].id]
+        );
+
+        res.json({ message: "Password updated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 module.exports = router;
