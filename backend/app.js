@@ -99,4 +99,13 @@ if (fs.existsSync(reactBuildPath)) {
     });
 }
 
+const logger = require("./middleware/logger");
+
+// Global error handler — catches errors from non-catchAsync middleware
+// and prevents Express default HTML error page (which leaks stack traces)
+app.use((err, req, res, _next) => {
+    logger.error({ err: err.message }, "Unhandled middleware error");
+    res.status(500).json({ error: "Internal server error" });
+});
+
 module.exports = app;
