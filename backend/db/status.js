@@ -33,11 +33,10 @@ async function status() {
       pending.forEach((m) => console.log(`  • ${m}`));
     }
 
-    const [{ count: tableCount }] = await db.raw(
-      "SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = ?",
-      [config.connection.database]
+    const { rows } = await db.raw(
+      "SELECT COUNT(*)::int AS count FROM information_schema.tables WHERE table_schema = 'public'"
     );
-    console.log(`\nTables: ${tableCount}`);
+    console.log(`\nTables: ${rows[0].count}`);
   } catch (err) {
     console.error("\nStatus check failed:", err.message);
     process.exit(1);

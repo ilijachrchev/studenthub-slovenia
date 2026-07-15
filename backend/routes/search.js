@@ -4,6 +4,10 @@ const catchAsync = require("../middleware/catchAsync");
 
 const router = express.Router();
 
+function placeHolders(n) {
+  return Array.from({ length: n }, (_, i) => `$${i + 1}`);
+}
+
 // /api/search GET method
 router.get("/", catchAsync(async (req, res) => {
     const ajde = (req.query.q || "").trim();
@@ -14,14 +18,14 @@ router.get("/", catchAsync(async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
-    const [events] = await pool.query(
+    const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
         e.start_datetime, e.end_datetime, e.registration_type,
         o.id AS organization_id, o.name AS organization_name
         FROM event e
         JOIN organization o ON e.organization_id = o.id
         WHERE e.status = 'published' AND o.status = 'approved'
-        AND e.title LIKE ?
+        AND e.title LIKE $1
         ORDER BY e.start_datetime ASC`,
         [`%${ajde}%`]
     );
@@ -31,12 +35,13 @@ router.get("/", catchAsync(async (req, res) => {
     }
 
     const eventIds = events.map((event) => event.id);
-    const [tagRows] = await pool.query(
+    const ph = placeHolders(eventIds.length);
+    const { rows: tagRows } = await pool.query(
         `SELECT et.event_id, t.id, t.name
         FROM event_tag et
         JOIN tag t ON et.tag_id = t.id
-        WHERE et.event_id IN (?)`,
-        [eventIds]
+        WHERE et.event_id IN (${ph})`,
+        eventIds
     );
 
     const tagsByEvent = {};

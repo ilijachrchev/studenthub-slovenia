@@ -16,13 +16,13 @@ router.get("/events", catchAsync(async (req, res) => {
         return res.status(403).json({error: "Only organizers can access this"});
     }
 
-    const [events] = await pool.query(
+    const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
             e.start_datetime, e.end_datetime, e.capacity,
             e.registration_type, e.external_url, e.status, e.created_at
             FROM event e
             JOIN organizer_profile op ON op.organization_id = e.organization_id
-            WHERE op.user_id = ?
+            WHERE op.user_id = $1
             ORDER BY e.start_datetime DESC`,
             [req.session.user.id]
     );
@@ -66,10 +66,10 @@ router.post("/events", catchAsync(async (req, res) => {
         return res.status(400).json({error: "An external registration link is required"});
     }
 
-    const [orgs] = await pool.query(
+    const { rows: orgs } = await pool.query(
         `SELECT o.id FROM organization o
         JOIN organizer_profile op ON op.organization_id = o.id
-        WHERE op.user_id = ? AND o.status = 'approved'`,
+        WHERE op.user_id = $1 AND o.status = 'approved'`,
         [req.session.user.id]
     );
 
@@ -79,16 +79,17 @@ router.post("/events", catchAsync(async (req, res) => {
 
     const organizationId = orgs[0].id;
 
-    const connection = await pool.getConnection();
+    const client = await pool.connect();
 
     try {
-        await connection.beginTransaction();
+        await client.query("BEGIN");
 
-        const [result] = await connection.query(
+        const { rows: [event] } = await client.query(
             `INSERT INTO event
                 (organization_id, title, description, location,
                 start_datetime, end_datetime, capacity, registration_type, external_url, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft')`,
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'draft')
+                RETURNING id`,
                 [
                     organizationId, title,
                     description || null,
@@ -101,30 +102,30 @@ router.post("/events", catchAsync(async (req, res) => {
                 ]
         );
 
-        const eventId = result.insertId;
+        const eventId = event.id;
 
         for (const tagId of tag_ids) {
-            await connection.query(
-                "INSERT INTO event_tag (event_id, tag_id) VALUES (?, ?)",
+            await client.query(
+                "INSERT INTO event_tag (event_id, tag_id) VALUES ($1, $2)",
                 [eventId, tagId]
             );
         }
 
         for (const facultyId of target_faculty_ids) {
-            await connection.query(
-                "INSERT INTO event_target (Event_id, faculty_id) VALUES (?, ?)",
+            await client.query(
+                "INSERT INTO event_target (event_id, faculty_id) VALUES ($1, $2)",
                 [eventId, facultyId]
             );
         }
 
-        await connection.commit();
+        await client.query("COMMIT");
         res.status(201).json({ message: "Event created", eventId});
     } catch (error) {
-        await connection.rollback();
+        await client.query("ROLLBACK");
         logger.error({ err: error }, "Event creation failed");
         res.status(500).json({error: "Internal server error"});
     } finally {
-        connection.release();
+        client.release();
     }
 }));
 
@@ -139,10 +140,10 @@ router.post("/events/:id/submit" , catchAsync(async (req, res) => {
 
     const eventId = req.params.id;
 
-    const [rows] = await pool.query(
+    const { rows } = await pool.query(
         `SELECT e.id, e.status FROM event e
         JOIN organizer_profile op ON op.organization_id = e.organization_id
-        WHERE e.id = ? AND op.user_id = ?`,
+        WHERE e.id = $1 AND op.user_id = $2`,
         [eventId, req.session.user.id]
     );
     if (rows.length === 0) {
@@ -152,7 +153,7 @@ router.post("/events/:id/submit" , catchAsync(async (req, res) => {
         return res.status(400).json({error: " Only draft events can be submitted"});
     }
 
-    await pool.query("UPDATE event SET status = 'submitted' WHERE id = ?", [eventId]);
+    await pool.query("UPDATE event SET status = 'submitted' WHERE id = $1", [eventId]);
 
     res.json({message: "Event submitted for approval"});
 }));

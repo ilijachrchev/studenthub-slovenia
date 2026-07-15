@@ -37,11 +37,12 @@ exports.seed = async function (knex) {
     "feedback",
   ];
 
-  const existingTables = await knex.raw("SHOW TABLES");
-  const tableNames = existingTables[0].map((row) => Object.values(row)[0]);
-  const missingTables = requiredTables.filter(
-    (table) => !tableNames.includes(table)
-  );
+  const missingTables = [];
+  for (const table of requiredTables) {
+    if (!(await knex.schema.hasTable(table))) {
+      missingTables.push(table);
+    }
+  }
 
   if (missingTables.length > 0) {
     throw new Error(

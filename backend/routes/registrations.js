@@ -24,10 +24,10 @@ router.get("/:id", catchAsync(async (req, res) => {
       return res.json({registration: null});
     }
 
-    const [rows] = await pool.query(
+    const { rows } = await pool.query(
       `SELECT id, user_id, event_id, registered_at, ticket_code, checked_in
        FROM registration
-       WHERE user_id = ? AND event_id = ?`,
+       WHERE user_id = $1 AND event_id = $2`,
        [req.session.user.id, req.params.id]
     );
 
@@ -37,15 +37,15 @@ router.get("/:id", catchAsync(async (req, res) => {
 
 // /api/register/:id POST method
 router.post("/:id", catchAsync(async (req, res) => {
-    const userId = req.session.user.id;
-    const eventId = req.params.id;
-
     if (!req.session.user) {
       return res.status(401).json({error: "You must be logged in to register!"});
     }
 
-    const [eventRows] = await pool.query(
-      "SELECT id, capacity, registration_type, status FROM event WHERE id = ?",
+    const userId = req.session.user.id;
+    const eventId = req.params.id;
+
+    const { rows: eventRows } = await pool.query(
+      "SELECT id, capacity, registration_type, status FROM event WHERE id = $1",
       [eventId]
     );
 
@@ -58,8 +58,8 @@ router.post("/:id", catchAsync(async (req, res) => {
       return res.status(400).json({ error: "This event does not use built-in registration" });
     }
 
-    const [existing] = await pool.query(
-      "SELECT id FROM registration WHERE user_id = ? AND event_id = ?",
+    const { rows: existing } = await pool.query(
+      "SELECT id FROM registration WHERE user_id = $1 AND event_id = $2",
       [userId, eventId]
     );
     if (existing.length) {
@@ -67,8 +67,8 @@ router.post("/:id", catchAsync(async (req, res) => {
     }
 
     if (event.capacity != null) {
-      const [countRows] = await pool.query(
-        "SELECT COUNT(*) AS count FROM registration WHERE event_id = ?",
+      const { rows: countRows } = await pool.query(
+        "SELECT COUNT(*)::int AS count FROM registration WHERE event_id = $1",
         [eventId]
       );
       if (countRows[0].count >= event.capacity) {
@@ -78,18 +78,14 @@ router.post("/:id", catchAsync(async (req, res) => {
 
     // insert with a generated ticket code
     const ticketCode = generateTicketCode();
-    const [result] = await pool.query(
-      "INSERT INTO registration (user_id, event_id, ticket_code) VALUES (?, ?, ?)",
+    const { rows: [registration] } = await pool.query(
+      `INSERT INTO registration (user_id, event_id, ticket_code)
+       VALUES ($1, $2, $3)
+       RETURNING id, user_id, event_id, registered_at, ticket_code, checked_in`,
       [userId, eventId, ticketCode]
     );
 
-    const [registrationRows] = await pool.query(
-      `SELECT id, user_id, event_id, registered_at, ticket_code, checked_in
-       FROM registration
-       WHERE id = ?`,
-       [result.insertId]
-    );
-    res.status(201).json(registrationRows[0]);
+    res.status(201).json(registration);
 }));
 
 
@@ -98,11 +94,11 @@ router.delete("/:id", catchAsync(async (req, res) => {
     if (!req.session.user) {
       return res.status(401).json({error: "Not logged in"});
     }
-    const [result] = await pool.query(
-      "DELETE FROM registration WHERE user_id = ? AND event_id = ?",
+    const { rowCount } = await pool.query(
+      "DELETE FROM registration WHERE user_id = $1 AND event_id = $2",
       [req.session.user.id, req.params.id]
     );
-    if (result.affectedRows === 0) {
+    if (rowCount === 0) {
       return res.status(404).json({error: "No registration to cancel"})
     }
 
@@ -116,14 +112,14 @@ router.get("/", catchAsync(async (req, res) => {
         return res.status(401).json({error: "Not logged in"});
     }
 
-    const [rows] = await pool.query(
+    const { rows } = await pool.query(
         `SELECT r.id, r.event_id, r.registered_at, r.ticket_code, r.checked_in,
                 e.title, e.start_datetime, e.end_datetime, e.location,
                 o.name AS organization_name
                 FROM registration r
                 JOIN event e ON r.event_id = e.id
                 JOIN organization o ON e.organization_id = o.id
-                WHERE r.user_id = ?
+                WHERE r.user_id = $1
                 ORDER BY e.start_datetime ASC`,
                 [req.session.user.id]
     );

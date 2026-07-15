@@ -36,8 +36,8 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
         if (!domain) {
             return res.status(400).json({ error: "Invalid email format" });
         }
-        const [faculties] = await pool.query(
-            "SELECT id FROM faculty WHERE email_domain = ?",
+        const { rows: faculties } = await pool.query(
+            "SELECT id FROM faculty WHERE email_domain = $1",
             [domain]
         );
         if (faculties.length === 0) {
@@ -47,9 +47,9 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
         }
     }
 
-    // check if mail is already exisitnig
-    const [existing] = await pool.query(
-        "SELECT id FROM user WHERE email = ?",
+    // check if mail is already existing
+    const { rows: existing } = await pool.query(
+        "SELECT id FROM \"user\" WHERE email = $1",
         [email]
     );
     if (existing.length > 0) {
@@ -59,13 +59,14 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // insert new user
-    const [result] = await pool.query(
-        "INSERT INTO user (first_name, last_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+    const { rows: [result] } = await pool.query(
+        `INSERT INTO "user" (first_name, last_name, email, password_hash, role)
+         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [first_name, last_name, email, hashedPassword, userRole]
     );
 
     req.session.user = {
-        id: result.insertId,
+        id: result.id,
         first_name,
         last_name,
         email,
@@ -74,7 +75,7 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
 
     res.status(201).json({
         message: "Registration successful",
-        userId: result.insertId,
+        userId: result.id,
     });
 }));
 
@@ -86,8 +87,8 @@ router.post("/login", authLimiter, catchAsync(async (req, res) => {
         return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const [users] = await pool.query(
-        "SELECT * FROM user WHERE email = ?",
+    const { rows: users } = await pool.query(
+        'SELECT * FROM "user" WHERE email = $1',
         [email]
     );
     if (users.length === 0) {
@@ -142,8 +143,8 @@ router.post("/reset-password", authLimiter, catchAsync(async (req, res) => {
         return res.status(400).json({ error: validationErrors[0] });
     }
 
-    const [users] = await pool.query(
-        "SELECT id, password_hash FROM user WHERE email = ?",
+    const { rows: users } = await pool.query(
+        'SELECT id, password_hash FROM "user" WHERE email = $1',
         [email]
     );
     if (users.length === 0) {
@@ -158,7 +159,7 @@ router.post("/reset-password", authLimiter, catchAsync(async (req, res) => {
     const hashedPassword = await bcrypt.hash(new_password, 10);
 
     await pool.query(
-        "UPDATE user SET password_hash = ? WHERE id = ?",
+        'UPDATE "user" SET password_hash = $1 WHERE id = $2',
         [hashedPassword, users[0].id]
     );
 
