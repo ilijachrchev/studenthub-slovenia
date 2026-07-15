@@ -30,7 +30,8 @@ router.get("/events", async (req, res) => {
 
         res.json({events});
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 
@@ -120,12 +121,14 @@ router.post("/events", async (req, res) => {
             res.status(201).json({ message: "Event created", eventId});
         } catch (error) {
             await connection.rollback();
-            res.status(500).json({error: error.message});
+            console.error(error);
+            res.status(500).json({error: "Internal server error"});
         } finally {
             connection.release();
         }
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 
@@ -158,7 +161,8 @@ router.post("/events/:id/submit" , async (req, res) => {
 
         res.json({message: "Event submitted for approval"});
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 

@@ -17,7 +17,8 @@ router.get("/:eventId", async(req, res) => {
 
         res.json({feedback: rows.length ? rows[0] : null});
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 
@@ -70,7 +71,8 @@ router.post("/:eventId", async (req, res) => {
 
         res.status(201).json({message: "Feedback submitted"})
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 

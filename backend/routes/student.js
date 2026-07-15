@@ -44,7 +44,8 @@ router.post("/setup", async (req, res) => {
         res.status(201).json({message: "Profile setup complete"});
     } catch (error) {
         await connection.rollback();
-        res.status(500).json({ error: error.message});
+        console.error(error);
+        res.status(500).json({ error: "Internal server error"});
     } finally {
         connection.release();
     }
@@ -79,7 +80,8 @@ router.get("/profile", async (req, res) => {
             tag_ids: interests.map((row) => row.tag_id),
         });
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 
@@ -121,7 +123,8 @@ router.put("/profile", async (req, res) => {
         res.json({message: "Preferences updated"});
     } catch (error) {
         await connection.rollback();
-        res.status(500).json({ error: error.message});
+        console.error(error);
+        res.status(500).json({ error: "Internal server error"});
     } finally {
         connection.release();
     }

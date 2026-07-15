@@ -59,7 +59,8 @@ router.post("/register", async (req, res) => {
             userId: result.insertId,
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -98,7 +99,8 @@ router.post("/login", async (req, res) => {
 
         res.json({ message: "Login successful", user: req.session.user });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -149,7 +151,8 @@ router.post("/reset-password", async (req, res) => {
 
         res.json({ message: "Password updated successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 

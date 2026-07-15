@@ -33,7 +33,8 @@ router.post("/", async (req, res) => {
             status: "pending",
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -57,7 +58,8 @@ router.get("/my-application", async (req, res) => {
 
         res.json({ hasApplication: true, organization: rows[0] });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -127,7 +129,8 @@ router.get("/:id", async (req, res) => {
 
         res.json({organization, upcoming, past});
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 

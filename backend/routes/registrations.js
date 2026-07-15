@@ -33,7 +33,8 @@ router.get("/:id", async (req, res) => {
 
     res.json({registration: rows.length ? rows[0] : null});
   } catch (error) {
-    res.status(500).json({error: error.message});
+    console.error(error);
+    res.status(500).json({error: "Internal server error"});
   }
 });
 
@@ -95,7 +96,8 @@ router.post("/:id", async (req, res) => {
     );
     res.status(201).json(registrationRows[0]);
   } catch (error) {
-    res.status(500).json({error:error.message})
+    console.error(error);
+    res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -116,7 +118,8 @@ router.delete("/:id", async (req, res) => {
 
     res.json({message:"Registration cancelled"});
   } catch (error) {
-    res.status(500).json({error:error.message})
+    console.error(error);
+    res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -142,7 +145,8 @@ router.get("/", async (req, res) => {
         res.json(rows);
 
     } catch (error) {
-        res.status(500).json({error:error.message})
+        console.error(error);
+        res.status(500).json({error: "Internal server error"})
     } 
 });
 

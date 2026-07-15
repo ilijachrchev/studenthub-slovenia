@@ -26,7 +26,8 @@ router.get("/events/pending", async (req, res) => {
 
         res.json({ events });
     } catch (error) {
-        res.status(500).json({error: error.message});
+        console.error(error);
+        res.status(500).json({error: "Internal server error"});
     }
 });
 
@@ -51,7 +52,8 @@ router.post("/events/:id/approve", async (req, res) => {
 
         res.json({ message: "Event published" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -102,12 +104,14 @@ router.post("/events/:id/reject", async (req, res) => {
             await connection.commit();
             res.json({ message: "Event rejected" });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error(error);
+            res.status(500).json({ error: "Internal server error" });
         } finally {
             connection.release();
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -134,7 +138,8 @@ router.get("/organizations/pending", async (req, res) => {
 
         res.json({ organizations });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -159,7 +164,8 @@ router.post("/organizations/:id/approve", async (req, res) => {
 
         res.json({ message: "Organization approved" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -184,7 +190,8 @@ router.post("/organizations/:id/reject", async (req, res) => {
 
         res.json({ message: "Organization rejected" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
