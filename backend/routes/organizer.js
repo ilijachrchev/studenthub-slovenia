@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db");
+const { validateEvent } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -47,6 +48,12 @@ router.post("/events", async (req, res) => {
     if (!title || !location || !start_datetime || !end_datetime) {
         return res.status(400).json({error: "Title, location, start and end datetime are required"});
     }
+
+    const validationErrors = validateEvent(req.body);
+    if (validationErrors.length > 0) {
+        return res.status(400).json({error: validationErrors[0]});
+    }
+
     if (!Array.isArray(tag_ids) || tag_ids.length === 0) {
         return res.status(400).json({error: "Select at least one tag"});
     }

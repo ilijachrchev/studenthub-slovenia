@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db");
+const { validateOrganization } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -14,6 +15,11 @@ router.post("/", async (req, res) => {
 
         if (!name || !contact_email) {
             return res.status(400).json({ error: "Organization name and contact email are required" });
+        }
+
+        const validationErrors = validateOrganization(req.body);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ error: validationErrors[0] });
         }
 
         // create org with status = PENDING

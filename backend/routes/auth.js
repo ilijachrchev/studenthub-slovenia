@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const pool = require("../db");
+const { validateRegistration } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -20,6 +21,11 @@ router.post("/register", authLimiter, async (req, res) => {
 
         if (!first_name || !last_name || !email || !password) {
             return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const validationErrors = validateRegistration(req.body);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ error: validationErrors[0] });
         }
 
         const userRole = role === "organizer" ? "organizer" : "student";

@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db");
+const { validateFeedback } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -35,6 +36,11 @@ router.post("/:eventId", async (req, res) => {
 
         if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
             return res.status(400).json({error: "Rating must be between 1 and 5"});
+        }
+
+        const validationErrors = validateFeedback(req.body);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({error: validationErrors[0]});
         }
 
         const [eventRows] = await pool.query(
