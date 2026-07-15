@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const catchAsync = require("../middleware/catchAsync");
+const logger = require("../middleware/logger");
 
 const router = express.Router();
 
@@ -44,7 +45,7 @@ router.post("/setup", catchAsync(async (req, res) => {
         res.status(201).json({message: "Profile setup complete"});
     } catch (error) {
         await connection.rollback();
-        console.error(error);
+        logger.error({ err: error }, "Student setup failed");
         res.status(500).json({ error: "Internal server error"});
     } finally {
         connection.release();
@@ -118,7 +119,7 @@ router.put("/profile", catchAsync(async (req, res) => {
         res.json({message: "Preferences updated"});
     } catch (error) {
         await connection.rollback();
-        console.error(error);
+        logger.error({ err: error }, "Student profile update failed");
         res.status(500).json({ error: "Internal server error"});
     } finally {
         connection.release();

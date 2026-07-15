@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const { validateEvent } = require("../middleware/validate");
 const catchAsync = require("../middleware/catchAsync");
+const logger = require("../middleware/logger");
 
 const router = express.Router();
 
@@ -120,7 +121,7 @@ router.post("/events", catchAsync(async (req, res) => {
         res.status(201).json({ message: "Event created", eventId});
     } catch (error) {
         await connection.rollback();
-        console.error(error);
+        logger.error({ err: error }, "Event creation failed");
         res.status(500).json({error: "Internal server error"});
     } finally {
         connection.release();

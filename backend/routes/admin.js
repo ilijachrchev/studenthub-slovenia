@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const catchAsync = require("../middleware/catchAsync");
+const logger = require("../middleware/logger");
 
 const router = express.Router();
 
@@ -94,7 +95,7 @@ router.post("/events/:id/reject", catchAsync(async (req, res) => {
         res.json({ message: "Event rejected" });
     } catch (error) {
         await connection.rollback();
-        console.error(error);
+        logger.error({ err: error }, "Event rejection failed");
         res.status(500).json({ error: "Internal server error" });
     } finally {
         connection.release();
