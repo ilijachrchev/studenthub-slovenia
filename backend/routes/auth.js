@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit");
 const pool = require("../db");
 const { validateRegistration, validatePasswordChange, isValidEmail } = require("../middleware/validate");
 const catchAsync = require("../middleware/catchAsync");
+const logger = require("../middleware/logger");
 
 const router = express.Router();
 
@@ -81,6 +82,8 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
 
         res.status(201).json({ message: "Registration successful" });
     });
+
+    logger.info({ userId: result.id, email, role: userRole }, "User registered");
 }));
 
 // /api/auth/login POST method
@@ -92,10 +95,11 @@ router.post("/login", authLimiter, catchAsync(async (req, res) => {
     }
 
     const { rows: users } = await pool.query(
-        'SELECT * FROM "user" WHERE email = $1',
+        'SELECT id, first_name, last_name, email, role, password_hash FROM "user" WHERE email = $1',
         [email]
     );
     if (users.length === 0) {
+        logger.warn({ email }, "Login failed: unknown email");
         return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -103,6 +107,7 @@ router.post("/login", authLimiter, catchAsync(async (req, res) => {
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
+        logger.warn({ userId: user.id, email }, "Login failed: wrong password");
         return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -122,6 +127,8 @@ router.post("/login", authLimiter, catchAsync(async (req, res) => {
 
         res.json({ message: "Login successful", user: req.session.user });
     });
+
+    logger.info({ userId: user.id, email }, "User logged in");
 }));
 
 // /api/auth/me GET method
@@ -165,6 +172,7 @@ router.post("/reset-password", authLimiter, catchAsync(async (req, res) => {
 
     const match = await bcrypt.compare(current_password, users[0].password_hash);
     if (!match) {
+        logger.warn({ userId: users[0].id }, "Password reset failed: wrong current password");
         return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -174,6 +182,8 @@ router.post("/reset-password", authLimiter, catchAsync(async (req, res) => {
         'UPDATE "user" SET password_hash = $1 WHERE id = $2',
         [hashedPassword, users[0].id]
     );
+
+    logger.info({ userId: users[0].id }, "Password updated");
 
     const cookieName = req.session.cookie.name || "connect.sid";
     req.session.destroy(() => {
