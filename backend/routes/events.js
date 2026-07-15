@@ -8,6 +8,9 @@ const router = express.Router();
 // /api/events GET method
 router.get("/", async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+
     const [events] = await pool.query(
       `SELECT e.id, e.title, e.description, e.location,
               e.start_datetime, e.end_datetime, e.capacity,
@@ -20,7 +23,7 @@ router.get("/", async (req, res) => {
     );
 
     if (events.length === 0) {
-      return res.json([]);
+      return res.json({ events: [], page: 1, limit, total: 0 });
     }
 
     const eventIds = events.map((event) => event.id);
@@ -91,7 +94,11 @@ router.get("/", async (req, res) => {
       });
     }
 
-    res.json(result);
+    const total = result.length;
+    const start = (page - 1) * limit;
+    const paged = result.slice(start, start + limit);
+
+    res.json({ events: paged, page, limit, total });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

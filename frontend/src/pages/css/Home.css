@@ -293,3 +293,29 @@
 .event-save-btn.saved {
   color: var(--primary);
 }
+
+.load-more-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: #f8fafc;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
