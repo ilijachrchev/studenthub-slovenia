@@ -15,7 +15,7 @@ beforeAll((done) => {
     process.env.DB_USER = "test";
     process.env.DB_PASS = "test";
     process.env.DB_DATABASE = "test";
-    process.env.DB_PORT = "3306";
+    process.env.DB_PORT = "5432";
 
     // Require server (it calls app.listen on PORT 30011)
     // Instead of requiring server.js (which binds to 30011),

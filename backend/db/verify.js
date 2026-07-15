@@ -53,11 +53,12 @@ async function verify() {
 
     // Check required tables
     console.log("\nChecking required tables...");
-    const existingTables = await db.raw("SHOW TABLES");
-    const tableNames = Object.values(existingTables[0]).map((row) => Object.values(row)[0]);
+    const tableChecks = await Promise.all(
+      REQUIRED_TABLES.map((t) => db.schema.hasTable(t).then((exists) => ({ table: t, exists })))
+    );
 
-    for (const table of REQUIRED_TABLES) {
-      if (tableNames.includes(table)) {
+    for (const { table, exists } of tableChecks) {
+      if (exists) {
         console.log(`  ✓ ${table}`);
       } else {
         errors.push(`Missing table: ${table}`);
@@ -68,8 +69,11 @@ async function verify() {
     // Check required indexes
     console.log("\nChecking required indexes...");
     for (const { table, index } of REQUIRED_INDEXES) {
-      const indexes = await db.raw(`SHOW INDEX FROM \`${table}\` WHERE Key_name = ?`, [index]);
-      if (indexes[0].length > 0) {
+      const exists = await db.raw(
+        "SELECT 1 FROM pg_indexes WHERE tablename = ? AND indexname = ? LIMIT 1",
+        [table, index]
+      );
+      if (exists.rows.length > 0) {
         console.log(`  ✓ ${table}.${index}`);
       } else {
         warnings.push(`Missing index: ${table}.${index}`);

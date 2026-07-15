@@ -9,14 +9,14 @@
  * 5. Verify rollback completes
  */
 
-const mysql = require("mysql2/promise");
+const { Client } = require("pg");
 const { Knex } = require("knex");
 
 const TEST_DB = "studenthub_migration_test";
 const ROOT_CONFIG = {
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "3306", 10),
-  user: process.env.DB_USER || "root",
+  port: parseInt(process.env.DB_PORT || "5432", 10),
+  user: process.env.DB_USER || "postgres",
   password: process.env.DB_PASS || process.env.DB_PASSWORD || "",
 };
 
@@ -40,20 +40,26 @@ const REQUIRED_TABLES = [
 ];
 
 describe("Migration lifecycle", () => {
-  let conn;
+  let client;
   let knex;
 
   beforeAll(async () => {
-    // Create test database
-    conn = await mysql.createConnection(ROOT_CONFIG);
-    await conn.execute(`DROP DATABASE IF EXISTS \`${TEST_DB}\``);
-    await conn.execute(
-      `CREATE DATABASE \`${TEST_DB}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
-    );
+    client = new Client(ROOT_CONFIG);
+    await client.connect();
+
+    // Terminate existing connections before dropping
+    await client.query(`
+      SELECT pg_terminate_backend(pid)
+      FROM pg_stat_activity
+      WHERE datname = $1 AND pid <> pg_backend_pid()
+    `, [TEST_DB]);
+
+    await client.query(`DROP DATABASE IF EXISTS ${TEST_DB}`);
+    await client.query(`CREATE DATABASE ${TEST_DB}`);
 
     // Initialize Knex with test database
     knex = Knex({
-      client: "mysql2",
+      client: "pg",
       connection: {
         host: ROOT_CONFIG.host,
         port: ROOT_CONFIG.port,
@@ -69,9 +75,14 @@ describe("Migration lifecycle", () => {
 
   afterAll(async () => {
     if (knex) await knex.destroy();
-    if (conn) {
-      await conn.execute(`DROP DATABASE IF EXISTS \`${TEST_DB}\``);
-      await conn.end();
+    if (client) {
+      await client.query(`
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE datname = $1 AND pid <> pg_backend_pid()
+      `, [TEST_DB]);
+      await client.query(`DROP DATABASE IF EXISTS ${TEST_DB}`);
+      await client.end();
     }
   });
 
@@ -83,8 +94,10 @@ describe("Migration lifecycle", () => {
   });
 
   test("all required tables exist after migration", async () => {
-    const tables = await knex.raw("SHOW TABLES");
-    const tableNames = tables[0].map((row) => Object.values(row)[0]);
+    const { rows } = await knex.raw(
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    );
+    const tableNames = rows.map((r) => r.tablename);
 
     for (const table of REQUIRED_TABLES) {
       expect(tableNames).toContain(table);
@@ -92,23 +105,21 @@ describe("Migration lifecycle", () => {
   });
 
   test("migrations run down successfully", async () => {
-    // Rollback all migrations
     const [batchNo, migrations] = await knex.migrate.rollback(null, true);
 
-    // After rolling back everything, we should be at batch 0 or -1
     expect(batchNo).toBeLessThanOrEqual(0);
   });
 
   test("tables are removed after full rollback", async () => {
-    const tables = await knex.raw("SHOW TABLES");
-    const tableNames = tables[0].map((row) => Object.values(row)[0]);
+    const { rows } = await knex.raw(
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    );
+    const tableNames = rows.map((r) => r.tablename);
 
-    // Check that most tables are gone (some system tables may remain)
     const remainingRequired = REQUIRED_TABLES.filter((table) =>
       tableNames.includes(table)
     );
 
-    // After full rollback, no required tables should exist
     expect(remainingRequired.length).toBe(0);
   });
 
@@ -118,9 +129,10 @@ describe("Migration lifecycle", () => {
     expect(batchNo).toBeGreaterThanOrEqual(0);
     expect(migrations.length).toBeGreaterThan(0);
 
-    // Verify tables exist again
-    const tables = await knex.raw("SHOW TABLES");
-    const tableNames = tables[0].map((row) => Object.values(row)[0]);
+    const { rows } = await knex.raw(
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    );
+    const tableNames = rows.map((r) => r.tablename);
 
     for (const table of REQUIRED_TABLES) {
       expect(tableNames).toContain(table);
