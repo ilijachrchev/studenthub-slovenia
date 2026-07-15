@@ -2,14 +2,14 @@ const express = require("express");
 const pool = require("../db");
 const catchAsync = require("../middleware/catchAsync");
 const logger = require("../middleware/logger");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
-// /api/auth/setup POST method
-router.post("/setup", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
+const requireStudent = requireRole("student");
+
+// /api/student/setup POST method
+router.post("/setup", requireStudent, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
 
     const { faculty_id, study_year, tag_ids } = req.body;
@@ -57,10 +57,7 @@ router.post("/setup", catchAsync(async (req, res) => {
 }));
 
 // /api/student/profile GET method
-router.get("/profile", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
+router.get("/profile", requireStudent, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
 
     const { rows: profiles } = await pool.query(
@@ -87,10 +84,7 @@ router.get("/profile", catchAsync(async (req, res) => {
 
 
 // /api/student/profile PUT method
-router.put("/profile", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in"});
-    }
+router.put("/profile", requireStudent, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
 
     const { faculty_id, study_year, tag_ids} = req.body;
