@@ -157,6 +157,7 @@ docker compose up -d       # runs migrations + seeds automatically
 | `npm run db:migrate:make <name>` | Create a new migration file |
 | `npm run db:seed` | Run all seed files |
 | `npm run db:seed:make <name>` | Create a new seed file |
+| `npm run db:verify` | Verify database state (tables, indexes) |
 
 #### Seed accounts (dev-only)
 
