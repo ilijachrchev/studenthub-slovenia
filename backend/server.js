@@ -1,79 +1,50 @@
-require("dotenv").config()
-const express = require('express');
+require("dotenv").config();
+const app = require("./app");
 const pool = require("./db");
-const session = require("express-session");
+const logger = require("./middleware/logger");
 
-// deploy
-const path = require('path');
+const PORT = process.env.PORT || 30011;
 
-const authRoutes = require("./routes/auth");
-const lookupRoutes = require("./routes/lookups");
-const studentRoutes = require("./routes/student");
-const eventRoutes = require("./routes/events");
-const registrationsRoutes = require("./routes/registrations");
-
-const organizationsRoutes = require("./routes/organizations");
-const organizerRoutes = require("./routes/organizer");
-
-const adminRoutes = require("./routes/admin");
-
-const bookmarksRoutes = require("./routes/bookmarks");
-
-const feedbackRoutes = require("./routes/feedback");
-
-const searchRoutes = require("./routes/search");
-
-
-const app = express();
-const PORT = 30011;
-
-// this is the middleware
-app.use(express.json());
-
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: false,
-            maxAge: 24 * 60 * 60 * 1000,
-        },
-    })
-);
-
-app.get('/api', (req, res) => {
-  res.json({ status: "ok", message: 'Hello from the backend, IT IS RUNNING :)!' });
+const server = app.listen(PORT, () => {
+  logger.info({ port: PORT }, "Server started");
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api", lookupRoutes);
-app.use("/api/student", studentRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/registrations", registrationsRoutes);
+// Verify database connection on startup
+pool.query("SELECT 1 AS health")
+  .then(() => {
+    logger.info("Database connection verified");
+  })
+  .catch((err) => {
+    logger.error({ err: err.message }, "Database connection failed on startup");
+  });
 
-app.use("/api/organizations", organizationsRoutes);
-app.use("/api/organizer", organizerRoutes);
+// Graceful shutdown
+const shutdown = async (signal) => {
+  logger.info({ signal }, "Shutdown signal received");
 
-app.use("/api/admin", adminRoutes);
+  server.close(() => {
+    logger.info("HTTP server closed");
+  });
 
-app.use("/api/bookmarks", bookmarksRoutes);
+  try {
+    await pool.end();
+    logger.info("Database pool closed");
+  } catch (err) {
+    logger.error({ err: err.message }, "Error closing database pool");
+  }
 
-app.use("/api/feedback", feedbackRoutes);
+  process.exit(0);
+};
 
-app.use("/api/search", searchRoutes);
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
+// Handle unhandled rejections
+process.on("unhandledRejection", (reason) => {
+  logger.error({ err: reason }, "Unhandled promise rejection");
+});
 
-// deploy
-const reactBuildPath = path.join(__dirname, './dist');
-app.use(express.static(reactBuildPath));
-
-app.get("/*splat", (req, res) => {
-  res.sendFile(path.join(reactBuildPath, "index.html"));
-})
-
-
-
-app.listen(PORT, () => {
-  console.log(`Server is listening to ${PORT}`);
+process.on("uncaughtException", (err) => {
+  logger.error({ err: err.message }, "Uncaught exception");
+  process.exit(1);
 });

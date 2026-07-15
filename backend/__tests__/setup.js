@@ -1,0 +1,9 @@
+process.env.DB_CLIENT = "pg";
+process.env.DB_HOST = "localhost";
+process.env.DB_PORT = "5433";
+process.env.DB_USER = "studenti";
+process.env.DB_PASS = "studentipass";
+process.env.DB_DATABASE = "studenthub_test";
+process.env.SESSION_SECRET = "test-secret";
+process.env.NODE_ENV = "test";
+process.env.FRONTEND_URL = "http://localhost:30010";

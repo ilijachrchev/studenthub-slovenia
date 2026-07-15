@@ -11,6 +11,9 @@ function Home() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   const [tags, setTags] = useState([]);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -19,20 +22,22 @@ function Home() {
   useEffect(() => {
     async function loadEvents() {
       try {
-        const [evetnsRes, tagsRes, savedRes] = await Promise.all([
-          fetch("/api/events", { credentials: "include" }),
+        const [eventsRes, tagsRes, savedRes] = await Promise.all([
+          fetch("/api/events?page=1&limit=20", { credentials: "include" }),
           fetch("/api/tags"),
           fetch("/api/bookmarks/ids", {credentials: "include"}),
         ]);
 
-        const eventsData = await evetnsRes.json();
+        const eventsData = await eventsRes.json();
         const tagsData = await tagsRes.json();
         const savedData = await savedRes.json();
 
-        if (!evetnsRes.ok) {
+        if (!eventsRes.ok) {
           setError(eventsData.error || "Failed to load events");
         } else {
-          setEvents(eventsData);
+          setEvents(eventsData.events || []);
+          setHasMore(eventsData.events.length < eventsData.total);
+          setPage(1);
           setTags(Array.isArray(tagsData) ? tagsData : []);
           setSavedIds(savedData.ids || []);
         }
@@ -45,6 +50,24 @@ function Home() {
 
     loadEvents();
   }, []);
+
+  const loadMore = async () => {
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/events?page=${nextPage}&limit=20`, { credentials: "include" });
+      const data = await res.json();
+      if (res.ok) {
+        setEvents((prev) => [...prev, ...(data.events || [])]);
+        setPage(nextPage);
+        setHasMore(data.events.length > 0 && (nextPage * 20) < data.total);
+      }
+    } catch {
+      // silently fail — existing events remain
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleToggleSave = async (eventId) => {
     const isSaved = savedIds.includes(eventId);
@@ -116,6 +139,12 @@ function Home() {
         savedIds={savedIds}
         onToggleSave={handleToggleSave} 
       />
+
+      {hasMore && (
+        <button className="load-more-btn" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? "Loading…" : "Load More"}
+        </button>
+      )}
     </div>
   );
 }

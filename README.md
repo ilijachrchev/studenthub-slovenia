@@ -71,30 +71,142 @@ Event lifecycle status: `draft → submitted → published` or `rejected`.
 - **Name:** `SISIII2026_89241041` · **Collation:** `utf8_unicode_ci`
 - **16 tables**, singular `snake_case` names:
   `user`, `student_profile`, `organizer_profile`, `admin`, `university`, `faculty`, `organization`, `event`, `event_tag`, `event_target`, `tag`, `registration`, `bookmark`, `feedback`, `event_rejection`, `user_interest`.
+- **Migrations:** Managed via Knex.js (`backend/db/migrations/`)
+- **Seeds:** Idempotent development data (`backend/db/seeds/`)
 
 ---
 
 ## Setup
 
 ### Prerequisites
-Node.js + npm, and access to the MySQL database on `88.200.63.148`.
+Node.js + npm, Docker + Docker Compose (for local DB), and access to the MySQL database on `88.200.63.148`.
+
+### Quick start with Docker
+
+The fastest way to get a local database running:
+
+```bash
+docker compose up -d        # starts MySQL + backend (runs migrations + seeds automatically)
+cd frontend && npm run dev  # frontend on :30010
+```
+
+The Docker backend automatically:
+1. Waits for MySQL to be healthy
+2. Runs all pending migrations (`npm run db:migrate`)
+3. Seeds development data (`npm run db:seed`)
+4. Starts the server
+
+#### Docker workflow commands
+
+| Command | Description |
+|---|---|
+| `docker compose up -d` | Start services (migrations + seeds run automatically) |
+| `docker compose up -d --build` | Rebuild images and start (use after dependency changes) |
+| `docker compose down` | Stop services (preserves database data) |
+| `docker compose down -v` | Stop services **and** remove database volume (full reset) |
+| `docker compose logs -f backend` | Follow backend logs |
+| `docker compose exec backend npm run db:status` | Check migration status inside container |
+| `docker compose exec backend npm run db:reset` | Reset database inside container |
+
+#### Fresh start (Docker)
+
+```bash
+docker compose down -v      # remove existing volume
+docker compose up -d        # recreate with fresh migrations + seeds
+cd frontend && npm run dev
+```
+
+#### Normal start (Docker, data preserved)
+
+```bash
+docker compose up -d        # starts with existing data, applies pending migrations
+cd frontend && npm run dev
+```
+
+### Database setup
+
+#### Option A: Using migrations (recommended)
+
+1. Create the database:
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS SISIII2026_89241041 CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+   ```
+
+2. Configure environment:
+   ```bash
+   cd backend
+   cp .env.example .env    # then fill in your credentials
+   ```
+
+3. Run migrations:
+   ```bash
+   npm run db:migrate      # applies all pending migrations
+   ```
+
+4. (Optional) Seed development data:
+   ```bash
+   npm run db:seed         # inserts idempotent test data
+   ```
+
+#### Option B: Docker (automated)
+
+```bash
+docker compose up -d       # runs migrations + seeds automatically
+```
+
+#### Option C: Using raw SQL (deprecated)
+
+> ⚠️ The raw SQL files in `backend/db/` are retained as a schema snapshot for reference only. Use migrations for all new deployments.
+
+1. Create the database and import the schema:
+   ```bash
+   mysql -u studenti -p < backend/db/schema.sql
+   ```
+
+2. (Optional) Import development seed data:
+   ```bash
+   mysql -u studenti -p < backend/db/seed.sql
+   ```
+
+#### Migration commands
+
+| Command | Description |
+|---|---|
+| `npm run db:migrate` | Apply all pending migrations |
+| `npm run db:rollback` | Rollback the last batch of migrations |
+| `npm run db:migrate:make <name>` | Create a new migration file |
+| `npm run db:seed` | Run all seed files |
+| `npm run db:seed:make <name>` | Create a new seed file |
+| `npm run db:verify` | Verify database state (tables, indexes) |
+| `npm run db:status` | Show applied and pending migrations |
+| `npm run db:reset` | Rollback, re-migrate, and re-seed (dev only) |
+
+#### Seed accounts (dev-only)
+
+| Email | Password | Role |
+|---|---|---|
+| `admin@studenthub.test` | `admin123` | admin |
+| `organizer@studenthub.test` | `organizer123` | organizer |
+| `student@famnit.upr.si` | `student123` | student |
 
 ### Backend
 ```bash
 cd backend
+cp .env.example .env    # then fill in your credentials
 npm install
-# create .env (see below)
 node server.js          # starts on :30011
 ```
 
-`.env` (gitignored):
+The `.env` file (gitignored) requires:
 ```
 DB_HOST=localhost
 DB_USER=studenti
-DB_PASS=********
+DB_PASSWORD=********
 DB_DATABASE=SISIII2026_89241041
-DB_PORT=30011
+DB_PORT=3306
 SESSION_SECRET=********
+FRONTEND_URL=http://localhost:30010
+PORT=30011
 ```
 
 ### Frontend

@@ -26,7 +26,7 @@ function SearchResults() {
             if (!response.ok) {
                 setError(data.error || "Seach failed");
             } else {
-                setEvents(data);
+                setEvents(data.events || []);
             }
         } catch {
             setError("Search failed");

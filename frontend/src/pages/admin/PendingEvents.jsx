@@ -65,7 +65,7 @@ function PendingEvents() {
             });
             if (!res.ok) {
                 const data = await res.json();
-                setError(DataTransfer.error || "Failed to reject event");
+                setError(data.error || "Failed to reject event");
                 setActionLoading(false);
                 return;
             }
@@ -79,7 +79,7 @@ function PendingEvents() {
     };
 
     if (loading) return <p className="pending-status">Loading...</p>
-    if (error && error.length === 0) return <p className="pending-status">{error}</p>
+    if (error && error.length > 0) return <p className="pending-status">{error}</p>
 
     return (
         <div className="pending-events">

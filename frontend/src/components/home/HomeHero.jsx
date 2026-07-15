@@ -25,7 +25,7 @@ function HomeHero({event}) {
         <h2 className="home-hero-title">{event.title}</h2>
         <p className="home-hero-org">by {event.organization_name}</p>
         <p className="home-hero-meta">
-          {formatDate(Event.start_datetime)} · {event.location}
+          {formatDate(event.start_datetime)} · {event.location}
         </p>
       </div>
 
