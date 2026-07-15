@@ -71,6 +71,8 @@ Event lifecycle status: `draft → submitted → published` or `rejected`.
 - **Name:** `SISIII2026_89241041` · **Collation:** `utf8_unicode_ci`
 - **16 tables**, singular `snake_case` names:
   `user`, `student_profile`, `organizer_profile`, `admin`, `university`, `faculty`, `organization`, `event`, `event_tag`, `event_target`, `tag`, `registration`, `bookmark`, `feedback`, `event_rejection`, `user_interest`.
+- **Migrations:** Managed via Knex.js (`backend/db/migrations/`)
+- **Seeds:** Idempotent development data (`backend/db/seeds/`)
 
 ---
 
@@ -98,7 +100,30 @@ The Docker environment includes seed data and dev accounts (see below).
 
 ### Database setup
 
-**Schema and seed files** are in `backend/db/`.
+#### Option A: Using migrations (recommended)
+
+1. Create the database:
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS SISIII2026_89241041 CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+   ```
+
+2. Configure environment:
+   ```bash
+   cd backend
+   cp .env.example .env    # then fill in your credentials
+   ```
+
+3. Run migrations:
+   ```bash
+   npm run db:migrate      # applies all pending migrations
+   ```
+
+4. (Optional) Seed development data:
+   ```bash
+   npm run db:seed         # inserts idempotent test data
+   ```
+
+#### Option B: Using raw SQL (legacy)
 
 1. Create the database and import the schema:
    ```bash
@@ -109,12 +134,24 @@ The Docker environment includes seed data and dev accounts (see below).
    ```bash
    mysql -u studenti -p < backend/db/seed.sql
    ```
-   Seed accounts (all passwords are dev-only):
-   | Email | Password | Role |
-   |---|---|---|
-   | `admin@studenthub.test` | `admin123` | admin |
-   | `organizer@studenthub.test` | `organizer123` | organizer |
-   | `student@famnit.upr.si` | `student123` | student |
+
+#### Migration commands
+
+| Command | Description |
+|---|---|
+| `npm run db:migrate` | Apply all pending migrations |
+| `npm run db:rollback` | Rollback the last batch of migrations |
+| `npm run db:migrate:make <name>` | Create a new migration file |
+| `npm run db:seed` | Run all seed files |
+| `npm run db:seed:make <name>` | Create a new seed file |
+
+#### Seed accounts (dev-only)
+
+| Email | Password | Role |
+|---|---|---|
+| `admin@studenthub.test` | `admin123` | admin |
+| `organizer@studenthub.test` | `organizer123` | organizer |
+| `student@famnit.upr.si` | `student123` | student |
 
 ### Backend
 ```bash
