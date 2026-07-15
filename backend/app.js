@@ -17,6 +17,8 @@ const bookmarksRoutes = require("./routes/bookmarks");
 const feedbackRoutes = require("./routes/feedback");
 const searchRoutes = require("./routes/search");
 const { validateOrigin } = require("./middleware/csrf");
+const logger = require("./middleware/logger");
+const pinoHttp = require("pino-http");
 
 const db = require("./db");
 
@@ -59,6 +61,8 @@ app.use(
 
 app.use(validateOrigin);
 
+app.use(pinoHttp({ logger, autoLogging: process.env.NODE_ENV !== "test" }));
+
 app.get('/api/health', async (req, res) => {
   let database = "disconnected";
   try {
@@ -98,8 +102,6 @@ if (fs.existsSync(reactBuildPath)) {
         res.sendFile(path.join(reactBuildPath, "index.html"));
     });
 }
-
-const logger = require("./middleware/logger");
 
 // Global error handler — catches errors from non-catchAsync middleware
 // and prevents Express default HTML error page (which leaks stack traces)
