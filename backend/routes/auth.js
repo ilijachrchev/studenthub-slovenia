@@ -135,7 +135,9 @@ router.get("/me", (req, res) => {
 
 // /api/auth/logout POST method
 router.post("/logout", (req, res) => {
+    const cookieName = req.session.cookie.name || "connect.sid";
     req.session.destroy(() => {
+        res.clearCookie(cookieName);
         res.json({ message: "Logged out" });
     });
 });
@@ -173,7 +175,9 @@ router.post("/reset-password", authLimiter, catchAsync(async (req, res) => {
         [hashedPassword, users[0].id]
     );
 
+    const cookieName = req.session.cookie.name || "connect.sid";
     req.session.destroy(() => {
+        res.clearCookie(cookieName);
         res.json({ message: "Password updated successfully" });
     });
 }));
