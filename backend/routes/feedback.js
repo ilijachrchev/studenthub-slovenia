@@ -11,8 +11,8 @@ router.get("/:eventId", catchAsync(async (req, res) => {
         return res.json({feedback: null});
     }
 
-    const [rows] = await pool.query(
-        "SELECT id, rating, comment, submitted_at FROM feedback WHERE user_id = ? AND event_id = ?",
+    const { rows } = await pool.query(
+        "SELECT id, rating, comment, submitted_at FROM feedback WHERE user_id = $1 AND event_id = $2",
         [req.session.user.id, req.params.eventId]
     );
 
@@ -38,8 +38,8 @@ router.post("/:eventId", catchAsync(async (req, res) => {
         return res.status(400).json({error: validationErrors[0]});
     }
 
-    const [eventRows] = await pool.query(
-        "SELECT id, end_datetime FROM event WHERE id = ?",
+    const { rows: eventRows } = await pool.query(
+        "SELECT id, end_datetime FROM event WHERE id = $1",
         [eventId]
     );
     if (!eventRows.length) {
@@ -49,16 +49,16 @@ router.post("/:eventId", catchAsync(async (req, res) => {
         return res.status(400).json({error: "You can only leave feedback after the event has ended"});
     }
 
-    const [registered] = await pool.query(
-        "SELECT id FROM registration WHERE user_id = ? AND event_id = ?",
+    const { rows: registered } = await pool.query(
+        "SELECT id FROM registration WHERE user_id = $1 AND event_id = $2",
         [userId, eventId]
     );
     if (!registered.length) {
         return res.status(403).json({error: "You can only leave feedback for events you registered for"});
     }
 
-    const[existing] = await pool.query(
-        "SELECT id FROM feedback WHERE user_id = ? AND event_id = ?",
+    const { rows: existing } = await pool.query(
+        "SELECT id FROM feedback WHERE user_id = $1 AND event_id = $2",
         [userId, eventId]
     );
     if (existing.length) {
@@ -66,7 +66,7 @@ router.post("/:eventId", catchAsync(async (req, res) => {
     }
 
     await pool.query(
-        "INSERT INTO feedback (user_id, event_id, rating, comment) VALUES (?, ?, ?, ?)",
+        "INSERT INTO feedback (user_id, event_id, rating, comment) VALUES ($1, $2, $3, $4)",
         [userId, eventId, rating, comment ? comment.trim() : null]
     );
 
