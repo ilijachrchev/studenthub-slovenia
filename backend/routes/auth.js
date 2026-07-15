@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const pool = require("../db");
-const { validateRegistration, isValidEmail } = require("../middleware/validate");
+const { validateRegistration, validatePasswordChange, isValidEmail } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -145,6 +145,11 @@ router.post("/reset-password", authLimiter, async (req, res) => {
 
         if (!email || !current_password || !new_password) {
             return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const validationErrors = validatePasswordChange(req.body);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ error: validationErrors[0] });
         }
 
         const [users] = await pool.query(

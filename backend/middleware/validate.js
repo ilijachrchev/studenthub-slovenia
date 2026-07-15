@@ -33,6 +33,15 @@ function validateRegistration(body) {
     else if (!isValidEmail(body.email)) errors.push("Invalid email format");
     const e4 = validateFieldLength(body.password, "Password", 128, true);
     if (e4) errors.push(e4);
+    else if (body.password.length < 8) errors.push("Password must be at least 8 characters");
+    return errors;
+}
+
+function validatePasswordChange(body) {
+    const errors = [];
+    const e = validateFieldLength(body.new_password, "New password", 128, true);
+    if (e) errors.push(e);
+    else if (body.new_password.length < 8) errors.push("Password must be at least 8 characters");
     return errors;
 }
 
@@ -74,6 +83,7 @@ module.exports = {
     isValidEmail,
     validateFieldLength,
     validateRegistration,
+    validatePasswordChange,
     validateOrganization,
     validateEvent,
     validateFeedback,
