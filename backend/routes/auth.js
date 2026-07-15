@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const pool = require("../db");
-const { validateRegistration } = require("../middleware/validate");
+const { validateRegistration, isValidEmail } = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -32,7 +32,10 @@ router.post("/register", authLimiter, async (req, res) => {
 
         // validate email domain for students
         if (userRole === "student") {
-            const domain = email.split("@")[1];
+            const domain = email.split("@")[1]?.toLowerCase();
+            if (!domain) {
+                return res.status(400).json({ error: "Invalid email format" });
+            }
             const [faculties] = await pool.query(
                 "SELECT id FROM faculty WHERE email_domain = ?",
                 [domain]
