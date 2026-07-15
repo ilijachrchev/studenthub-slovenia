@@ -106,6 +106,11 @@ if (fs.existsSync(reactBuildPath)) {
 // Global error handler — catches errors from non-catchAsync middleware
 // and prevents Express default HTML error page (which leaks stack traces)
 app.use((err, req, res, _next) => {
+    const status = err.status || err.statusCode;
+    if (status) {
+        logger.warn({ err: err.message }, "Client error");
+        return res.status(status).json({ error: err.message });
+    }
     logger.error({ err: err.message }, "Unhandled middleware error");
     res.status(500).json({ error: "Internal server error" });
 });
