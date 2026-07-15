@@ -21,6 +21,8 @@ import SearchResults from "./pages/SearchResults";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider } from "./context/AuthContext";
 import MyRegistrations from "./pages/MyRegistrations";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RoleRoute from "./components/auth/RoleRoute";
 
 
 export default function App() {
@@ -36,9 +38,21 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/setup-organization" element={<SetupOrganization />} />
-          <Route path="/setup-feed" element={<SetupFeed />} />
-          <Route path="/application-status" element={<ApplicationStatus />} />
+          <Route path="/setup-organization" element={
+            <RoleRoute allowedRoles={["organizer"]}>
+              <SetupOrganization />
+            </RoleRoute>
+          } />
+          <Route path="/setup-feed" element={
+            <ProtectedRoute>
+              <SetupFeed />
+            </ProtectedRoute>
+          } />
+          <Route path="/application-status" element={
+            <RoleRoute allowedRoles={["organizer"]}>
+              <ApplicationStatus />
+            </RoleRoute>
+          } />
           <Route path="/events/:id" element={
             <StudentLayout>
               <EventDetail />
@@ -50,44 +64,60 @@ export default function App() {
             </StudentLayout>  
           } />
           <Route path="/my-registrations" element={
-            <StudentLayout>
-              <MyRegistrations />
-            </StudentLayout>  
+            <ProtectedRoute>
+              <StudentLayout>
+                <MyRegistrations />
+              </StudentLayout>
+            </ProtectedRoute>
           } />
           <Route path="/organizer" element={
-            <OrganizerLayout>
-              <OrganizerDashboard />
-            </OrganizerLayout>  
+            <RoleRoute allowedRoles={["organizer"]}>
+              <OrganizerLayout>
+                <OrganizerDashboard />
+              </OrganizerLayout>
+            </RoleRoute>
           } />
           <Route path="/organizer/events/new" element={
-            <OrganizerLayout>
-              <CreateEvent />
-            </OrganizerLayout>  
+            <RoleRoute allowedRoles={["organizer"]}>
+              <OrganizerLayout>
+                <CreateEvent />
+              </OrganizerLayout>
+            </RoleRoute>
           } />
           <Route path="/admin" element={
-            <AdminLayout>
-              <PendingEvents />
-            </AdminLayout>  
+            <RoleRoute allowedRoles={["admin"]}>
+              <AdminLayout>
+                <PendingEvents />
+              </AdminLayout>
+            </RoleRoute>
           } />
           <Route path="/admin/organizations" element={
-            <AdminLayout>
-              <PendingOrganizations />
-            </AdminLayout>  
+            <RoleRoute allowedRoles={["admin"]}>
+              <AdminLayout>
+                <PendingOrganizations />
+              </AdminLayout>
+            </RoleRoute>
           } />
           <Route path="/settings" element={
-            <StudentLayout>
-              <AccountSettings />
-            </StudentLayout>  
+            <ProtectedRoute>
+              <StudentLayout>
+                <AccountSettings />
+              </StudentLayout>
+            </ProtectedRoute>
           } />
           <Route path="/saved" element={
-            <StudentLayout>
-              <Saved />
-            </StudentLayout>  
+            <ProtectedRoute>
+              <StudentLayout>
+                <Saved />
+              </StudentLayout>
+            </ProtectedRoute>
           } />
           <Route path="/events/:eventId/feedback" element={
-            <StudentLayout>
-              <Feedback />
-            </StudentLayout>  
+            <ProtectedRoute>
+              <StudentLayout>
+                <Feedback />
+              </StudentLayout>
+            </ProtectedRoute>
           } />
           <Route path="/search" element={
             <StudentLayout>
