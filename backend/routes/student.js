@@ -1,10 +1,11 @@
 const express = require("express");
 const pool = require("../db");
+const catchAsync = require("../middleware/catchAsync");
 
 const router = express.Router();
 
 // /api/auth/setup POST method
-router.post("/setup", async (req, res) => {
+router.post("/setup", catchAsync(async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({error: "Not logged in"});
     }
@@ -23,7 +24,7 @@ router.post("/setup", async (req, res) => {
     if (exisiting.length > 0) {
         return res.status(400).json({ error: "You have already set up your feed"});
     }
-    
+
     const connection = await pool.getConnection();
 
     try {
@@ -48,45 +49,40 @@ router.post("/setup", async (req, res) => {
     } finally {
         connection.release();
     }
-});
+}));
 
 // /api/student/profile GET method
-router.get("/profile", async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.status(401).json({error: "Not logged in"});
-        }
-        const userId = req.session.user.id;
-
-        const [profiles] = await pool.query(
-            "SELECT faculty_id, study_year FROM student_profile WHERE user_id = ?",
-            [userId]
-        );
-
-        if (profiles.length === 0) {
-            return res.json({ hasProfile: false });
-        }
-
-        const [interests] = await pool.query(
-            "SELECT tag_id FROM user_interest WHERE user_id = ?",
-            [userId]
-        );
-
-        res.json({
-            hasProfile: true,
-            faculty_id: profiles[0].faculty_id,
-            study_year: profiles[0].study_year,
-            tag_ids: interests.map((row) => row.tag_id),
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({error: "Internal server error"});
+router.get("/profile", catchAsync(async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({error: "Not logged in"});
     }
-});
+    const userId = req.session.user.id;
+
+    const [profiles] = await pool.query(
+        "SELECT faculty_id, study_year FROM student_profile WHERE user_id = ?",
+        [userId]
+    );
+
+    if (profiles.length === 0) {
+        return res.json({ hasProfile: false });
+    }
+
+    const [interests] = await pool.query(
+        "SELECT tag_id FROM user_interest WHERE user_id = ?",
+        [userId]
+    );
+
+    res.json({
+        hasProfile: true,
+        faculty_id: profiles[0].faculty_id,
+        study_year: profiles[0].study_year,
+        tag_ids: interests.map((row) => row.tag_id),
+    });
+}));
 
 
 // /api/student/profile PUT method
-router.put("/profile", async (req, res) => {
+router.put("/profile", catchAsync(async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: "Not logged in"});
     }
@@ -127,7 +123,7 @@ router.put("/profile", async (req, res) => {
     } finally {
         connection.release();
     }
-})
+}));
 
 
 module.exports = router;

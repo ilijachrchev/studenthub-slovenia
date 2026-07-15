@@ -1,13 +1,13 @@
 const express = require("express");
 const pool = require("../db");
 const crypto = require("crypto");
+const catchAsync = require("../middleware/catchAsync");
 
 const router = express.Router();
 
 
 // /api/events GET method
-router.get("/", async (req, res) => {
-  try {
+router.get("/", catchAsync(async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
@@ -99,15 +99,10 @@ router.get("/", async (req, res) => {
     const paged = result.slice(start, start + limit);
 
     res.json({ events: paged, page, limit, total });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+}));
 
 // /api/events/:id GET method
-router.get("/:id", async (req, res) => {
-  try {
+router.get("/:id", catchAsync(async (req, res) => {
     const eventId = req.params.id;
 
     const [rows] = await pool.query(
@@ -139,10 +134,6 @@ router.get("/:id", async (req, res) => {
 
     event.tags = tagRows;
     res.json(event);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-    }
-});
+}));
 
 module.exports = router;

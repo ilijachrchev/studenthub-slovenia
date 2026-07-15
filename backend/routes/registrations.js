@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const crypto = require("crypto");
+const catchAsync = require("../middleware/catchAsync");
 
 const router = express.Router();
 
@@ -18,12 +19,11 @@ function generateTicketCode() {
 
 
 // /api/registration/:id GET method
-router.get("/:id", async (req, res) => {
-  try {
+router.get("/:id", catchAsync(async (req, res) => {
     if (!req.session.user) {
       return res.json({registration: null});
     }
-    
+
     const [rows] = await pool.query(
       `SELECT id, user_id, event_id, registered_at, ticket_code, checked_in
        FROM registration
@@ -32,22 +32,17 @@ router.get("/:id", async (req, res) => {
     );
 
     res.json({registration: rows.length ? rows[0] : null});
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Internal server error"});
-  }
-});
+}));
 
 
 // /api/register/:id POST method
-router.post("/:id", async (req, res) => {
-  try {
+router.post("/:id", catchAsync(async (req, res) => {
+    const userId = req.session.user.id;
+    const eventId = req.params.id;
+
     if (!req.session.user) {
       return res.status(401).json({error: "You must be logged in to register!"});
     }
-
-    const userId = req.session.user.id;
-    const eventId = req.params.id;
 
     const [eventRows] = await pool.query(
       "SELECT id, capacity, registration_type, status FROM event WHERE id = ?",
@@ -95,16 +90,11 @@ router.post("/:id", async (req, res) => {
        [result.insertId]
     );
     res.status(201).json(registrationRows[0]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Internal server error"})
-  }
-});
+}));
 
 
 // /api/registration/:id DELETE method
-router.delete("/:id", async (req, res) => {
-  try {
+router.delete("/:id", catchAsync(async (req, res) => {
     if (!req.session.user) {
       return res.status(401).json({error: "Not logged in"});
     }
@@ -117,38 +107,28 @@ router.delete("/:id", async (req, res) => {
     }
 
     res.json({message:"Registration cancelled"});
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Internal server error"})
-  }
-});
+}));
 
 
 // /api/registration/:id GET method
-router.get("/", async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.status(401).json({error: "Not logged in"});
-        }
+router.get("/", catchAsync(async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({error: "Not logged in"});
+    }
 
-        const [rows] = await pool.query(
-            `SELECT r.id, r.event_id, r.registered_at, r.ticket_code, r.checked_in,
-                    e.title, e.start_datetime, e.end_datetime, e.location,
-                    o.name AS organization_name
-                    FROM registration r
-                    JOIN event e ON r.event_id = e.id
-                    JOIN organization o ON e.organization_id = o.id
-                    WHERE r.user_id = ?
-                    ORDER BY e.start_datetime ASC`, 
-                    [req.session.user.id]
-        );
-        res.json(rows);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({error: "Internal server error"})
-    } 
-});
+    const [rows] = await pool.query(
+        `SELECT r.id, r.event_id, r.registered_at, r.ticket_code, r.checked_in,
+                e.title, e.start_datetime, e.end_datetime, e.location,
+                o.name AS organization_name
+                FROM registration r
+                JOIN event e ON r.event_id = e.id
+                JOIN organization o ON e.organization_id = o.id
+                WHERE r.user_id = ?
+                ORDER BY e.start_datetime ASC`,
+                [req.session.user.id]
+    );
+    res.json(rows);
+}));
 
 
 module.exports = router;
