@@ -1,4 +1,5 @@
 const catchAsync = require("../middleware/catchAsync");
+const logger = require("../middleware/logger");
 
 describe("catchAsync", () => {
     function mockRes() {
@@ -24,7 +25,7 @@ describe("catchAsync", () => {
     });
 
     test("catches errors and returns 500 with safe message", async () => {
-        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+        const loggerSpy = jest.spyOn(logger, "error").mockImplementation(() => {});
 
         const handler = catchAsync(async (req, res) => {
             throw new Error("database connection failed");
@@ -37,13 +38,13 @@ describe("catchAsync", () => {
 
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ error: "Internal server error" });
-        expect(consoleSpy).toHaveBeenCalled();
+        expect(loggerSpy).toHaveBeenCalled();
 
-        consoleSpy.mockRestore();
+        loggerSpy.mockRestore();
     });
 
     test("does not expose error.message to client", async () => {
-        const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+        const loggerSpy = jest.spyOn(logger, "error").mockImplementation(() => {});
 
         const handler = catchAsync(async (req, res) => {
             throw new Error("SECRET_INTERNAL_DETAILS");
@@ -58,6 +59,6 @@ describe("catchAsync", () => {
             expect.objectContaining({ error: "SECRET_INTERNAL_DETAILS" })
         );
 
-        consoleSpy.mockRestore();
+        loggerSpy.mockRestore();
     });
 });

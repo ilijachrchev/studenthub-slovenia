@@ -1,6 +1,7 @@
 services:
   db:
     image: mysql:8.0
+    container_name: studenthub-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: SISIII2026_89241041
@@ -9,7 +10,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -18,14 +19,15 @@ services:
 
   db-pg:
     image: postgres:16
+    container_name: studenthub-postgres
     environment:
       POSTGRES_DB: SISIII2026_89241041
       POSTGRES_USER: studenti
       POSTGRES_PASSWORD: studentipass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - db_pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U studenti -d SISIII2026_89241041"]
       interval: 5s
@@ -34,6 +36,7 @@ services:
 
   backend:
     build: ./backend
+    container_name: studenthub-backend
     ports:
       - "30011:30011"
     environment:
@@ -51,5 +54,5 @@ services:
         condition: service_healthy
 
 volumes:
-  db_data:
-  db_pg_data:
+  mysql_data:
+  postgres_data:

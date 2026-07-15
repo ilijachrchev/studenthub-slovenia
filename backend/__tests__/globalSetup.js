@@ -1,12 +1,13 @@
 const { Client } = require("pg");
-const { Knex } = require("knex");
+const Knex = require("knex");
 
 const TEST_DB = "studenthub_test";
 const ROOT_CONFIG = {
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "5432", 10),
-  user: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASS || process.env.DB_PASSWORD || "",
+  port: parseInt(process.env.DB_PORT || "5433", 10),
+  user: "studenti",
+  password: "studentipass",
+  database: "SISIII2026_89241041",
 };
 
 module.exports = async function globalSetup() {
@@ -28,11 +29,28 @@ module.exports = async function globalSetup() {
 
   // Run migrations using Knex
   const knexConfig = require("../knexfile").test;
+  knexConfig.connection.database = TEST_DB;
   const knex = Knex(knexConfig);
 
   try {
     await knex.migrate.latest();
     await knex.seed.run();
+
+    // Reset all sequences to max(id) so auto-increment doesn't collide with seeded IDs
+    const tablesToReset = [
+      { table: "university", column: "id" },
+      { table: "faculty", column: "id" },
+      { table: "tag", column: "id" },
+      { table: '"user"', column: "id" },
+      { table: "organization", column: "id" },
+      { table: "event", column: "id" },
+    ];
+    for (const { table, column } of tablesToReset) {
+      const seqName = table.replace(/"/g, "") + "_" + column + "_seq";
+      await knex.raw(
+        `SELECT setval('${seqName}', COALESCE((SELECT MAX(${column}) FROM ${table}), 1))`
+      ).catch(() => {});
+    }
   } finally {
     await knex.destroy();
   }

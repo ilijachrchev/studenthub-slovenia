@@ -37,12 +37,12 @@ router.get("/:id", catchAsync(async (req, res) => {
 
 // /api/register/:id POST method
 router.post("/:id", catchAsync(async (req, res) => {
-    const userId = req.session.user.id;
-    const eventId = req.params.id;
-
     if (!req.session.user) {
       return res.status(401).json({error: "You must be logged in to register!"});
     }
+
+    const userId = req.session.user.id;
+    const eventId = req.params.id;
 
     const { rows: eventRows } = await pool.query(
       "SELECT id, capacity, registration_type, status FROM event WHERE id = $1",

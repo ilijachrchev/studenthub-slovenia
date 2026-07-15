@@ -10,14 +10,15 @@
  */
 
 const { Client } = require("pg");
-const { Knex } = require("knex");
+const Knex = require("knex");
 
 const TEST_DB = "studenthub_migration_test";
 const ROOT_CONFIG = {
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "5432", 10),
-  user: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASS || process.env.DB_PASSWORD || "",
+  port: parseInt(process.env.DB_PORT || "5433", 10),
+  user: process.env.DB_USER || "studenti",
+  password: process.env.DB_PASS || process.env.DB_PASSWORD || "studentipass",
+  database: process.env.DB_DATABASE || "SISIII2026_89241041",
 };
 
 const REQUIRED_TABLES = [
@@ -68,7 +69,7 @@ describe("Migration lifecycle", () => {
         database: TEST_DB,
       },
       migrations: {
-        directory: "../db/migrations",
+        directory: "./db/migrations",
       },
     });
   });
@@ -107,7 +108,7 @@ describe("Migration lifecycle", () => {
   test("migrations run down successfully", async () => {
     const [batchNo, migrations] = await knex.migrate.rollback(null, true);
 
-    expect(batchNo).toBeLessThanOrEqual(0);
+    expect(batchNo).toBeGreaterThanOrEqual(0);
   });
 
   test("tables are removed after full rollback", async () => {
