@@ -18,6 +18,8 @@ const feedbackRoutes = require("./routes/feedback");
 const searchRoutes = require("./routes/search");
 const { validateOrigin } = require("./middleware/csrf");
 
+const db = require("./db");
+
 const app = express();
 
 app.use(helmet({
@@ -49,8 +51,20 @@ app.use(
 
 app.use(validateOrigin);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  let database = "disconnected";
+  try {
+    await db.query("SELECT 1");
+    database = "connected";
+  } catch {
+    // intentionally ignored — database is unreachable
+  }
+  const status = database === "connected" ? "ok" : "degraded";
+  res.status(status === "ok" ? 200 : 503).json({
+    status,
+    database,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.get('/api', (req, res) => {
