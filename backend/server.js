@@ -1,6 +1,7 @@
 require("dotenv").config()
 const express = require('express');
 const helmet = require("helmet");
+const cors = require("cors");
 const pool = require("./db");
 const session = require("express-session");
 
@@ -33,6 +34,13 @@ app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
 }));
+
+const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:30010";
+app.use(cors({
+    origin: allowedOrigin,
+    credentials: true,
+}));
+
 app.use(express.json({ limit: '512kb' }));
 
 app.use(
