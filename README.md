@@ -96,11 +96,31 @@ The Docker backend automatically:
 3. Seeds development data (`npm run db:seed`)
 4. Starts the server
 
-To reset the database, remove the Docker volume:
+#### Docker workflow commands
+
+| Command | Description |
+|---|---|
+| `docker compose up -d` | Start services (migrations + seeds run automatically) |
+| `docker compose up -d --build` | Rebuild images and start (use after dependency changes) |
+| `docker compose down` | Stop services (preserves database data) |
+| `docker compose down -v` | Stop services **and** remove database volume (full reset) |
+| `docker compose logs -f backend` | Follow backend logs |
+| `docker compose exec backend npm run db:status` | Check migration status inside container |
+| `docker compose exec backend npm run db:reset` | Reset database inside container |
+
+#### Fresh start (Docker)
 
 ```bash
-docker compose down -v      # removes database volume
-docker compose up -d        # recreates with fresh migrations
+docker compose down -v      # remove existing volume
+docker compose up -d        # recreate with fresh migrations + seeds
+cd frontend && npm run dev
+```
+
+#### Normal start (Docker, data preserved)
+
+```bash
+docker compose up -d        # starts with existing data, applies pending migrations
+cd frontend && npm run dev
 ```
 
 ### Database setup
@@ -158,6 +178,8 @@ docker compose up -d       # runs migrations + seeds automatically
 | `npm run db:seed` | Run all seed files |
 | `npm run db:seed:make <name>` | Create a new seed file |
 | `npm run db:verify` | Verify database state (tables, indexes) |
+| `npm run db:status` | Show applied and pending migrations |
+| `npm run db:reset` | Rollback, re-migrate, and re-seed (dev only) |
 
 #### Seed accounts (dev-only)
 
