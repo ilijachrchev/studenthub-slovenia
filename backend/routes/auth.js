@@ -1,11 +1,20 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const rateLimit = require("express-rate-limit");
 const pool = require("../db");
 
 const router = express.Router();
 
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many attempts, please try again later" },
+});
+
 // /api/auth/register POST method
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
     try {
         const { first_name, last_name, email, password, role } = req.body;
 
@@ -65,7 +74,7 @@ router.post("/register", async (req, res) => {
 });
 
 // /api/auth/login POST method
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -121,7 +130,7 @@ router.post("/logout", (req, res) => {
 });
 
 // /api/auth/reset-password POST method
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", authLimiter, async (req, res) => {
     try {
         const { email, current_password, new_password } = req.body;
 
