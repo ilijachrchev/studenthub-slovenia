@@ -35,15 +35,23 @@ app.use(cors({
 
 app.use(express.json({ limit: '512kb' }));
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+    if (process.env.NODE_ENV === "production") {
+        throw new Error("SESSION_SECRET environment variable is required in production");
+    }
+    console.warn("WARNING: Using default session secret. Set SESSION_SECRET in .env for production.");
+}
+
 app.use(
     session({
-        secret: process.env.SESSION_SECRET || "test-secret",
+        secret: sessionSecret || "dev-only-insecure-secret",
         resave: false,
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.COOKIE_SECURE === "true" || process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000,
         },
     })
