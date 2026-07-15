@@ -3,18 +3,15 @@ const pool = require("../db");
 const { validateEvent } = require("../middleware/validate");
 const catchAsync = require("../middleware/catchAsync");
 const logger = require("../middleware/logger");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
+const requireOrganizer = requireRole("organizer");
+
 
 // /api/organizer/events GET method
-router.get("/events", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
-    if (req.session.user.role !== "organizer") {
-        return res.status(403).json({error: "Only organizers can access this"});
-    }
+router.get("/events", requireOrganizer, catchAsync(async (req, res) => {
 
     const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
@@ -31,13 +28,7 @@ router.get("/events", catchAsync(async (req, res) => {
 }));
 
 // /api/organizer/events POST method
-router.post("/events", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: " Not logged in"});
-    }
-    if (req.session.user.role !== "organizer") {
-        return res.status(403).json({error: "Only organizers can create events"});
-    }
+router.post("/events", requireOrganizer, catchAsync(async (req, res) => {
 
     const { title, description, location, start_datetime, end_datetime,
             registration_type, capacity, external_url, tag_ids, target_faculty_ids, } = req.body;
@@ -130,13 +121,7 @@ router.post("/events", catchAsync(async (req, res) => {
 }));
 
 // /api/organizer/events/:id POST method
-router.post("/events/:id/submit" , catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
-    if (req.session.user.role !== "organizer") {
-        return res.status(403).json({error: "Only organizers can submit events"});
-    }
+router.post("/events/:id/submit", requireOrganizer, catchAsync(async (req, res) => {
 
     const eventId = req.params.id;
 

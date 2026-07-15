@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const { validateFeedback } = require("../middleware/validate");
 const catchAsync = require("../middleware/catchAsync");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -20,11 +21,7 @@ router.get("/:eventId", catchAsync(async (req, res) => {
 }));
 
 // /api/feedback/:eventId POST method
-router.post("/:eventId", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "You must be logged in to leave feedback"});
-    }
-
+router.post("/:eventId", requireAuth, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
     const eventId = req.params.eventId;
     const { rating, comment } = req.body;

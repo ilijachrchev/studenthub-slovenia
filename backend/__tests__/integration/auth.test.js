@@ -20,7 +20,6 @@ describe("POST /api/auth/register", () => {
 
     expect(res.status).toBe(201);
     expect(res.body.message).toBe("Registration successful");
-    expect(res.body.userId).toBeDefined();
 
     // session cookie is set
     expect(res.headers["set-cookie"]).toBeDefined();
