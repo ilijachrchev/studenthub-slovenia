@@ -79,21 +79,44 @@ Event lifecycle status: `draft → submitted → published` or `rejected`.
 ### Prerequisites
 Node.js + npm, and access to the MySQL database on `88.200.63.148`.
 
+### Database setup
+
+**Schema and seed files** are in `backend/db/`.
+
+1. Create the database and import the schema:
+   ```bash
+   mysql -u studenti -p < backend/db/schema.sql
+   ```
+
+2. (Optional) Import development seed data:
+   ```bash
+   mysql -u studenti -p < backend/db/seed.sql
+   ```
+   Seed accounts (all passwords are dev-only):
+   | Email | Password | Role |
+   |---|---|---|
+   | `admin@studenthub.test` | `admin123` | admin |
+   | `organizer@studenthub.test` | `organizer123` | organizer |
+   | `student@famnit.upr.si` | `student123` | student |
+
 ### Backend
 ```bash
 cd backend
+cp .env.example .env    # then fill in your credentials
 npm install
-# create .env (see below)
 node server.js          # starts on :30011
 ```
 
-`.env` (gitignored):
+The `.env` file (gitignored) requires:
 ```
 DB_HOST=localhost
 DB_USER=studenti
 DB_PASSWORD=********
-DB_NAME=SISIII2026_89241041
+DB_DATABASE=SISIII2026_89241041
+DB_PORT=3306
 SESSION_SECRET=********
+FRONTEND_URL=http://localhost:30010
+PORT=30011
 ```
 
 ### Frontend
