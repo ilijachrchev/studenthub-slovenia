@@ -8,8 +8,11 @@ const router = express.Router();
 router.get("/", catchAsync(async (req, res) => {
     const ajde = (req.query.q || "").trim();
     if (!ajde) {
-        return res.json([]);
+        return res.json({ events: [], total: 0, page: 1, totalPages: 0 });
     }
+
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
     const [events] = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
@@ -24,7 +27,7 @@ router.get("/", catchAsync(async (req, res) => {
     );
 
     if (events.length === 0) {
-        return res.json([]);
+        return res.json({ events: [], total: 0, page, totalPages: 0 });
     }
 
     const eventIds = events.map((event) => event.id);
@@ -49,7 +52,12 @@ router.get("/", catchAsync(async (req, res) => {
         tags: tagsByEvent[event.id] || [],
     }));
 
-    res.json(result);
+    const total = result.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = result.slice(start, start + limit);
+
+    res.json({ events: paged, total, page, totalPages });
 }));
 
 module.exports = router;
