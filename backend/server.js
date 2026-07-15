@@ -61,6 +61,10 @@ app.use(
 
 app.use(validateOrigin);
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.get('/api', (req, res) => {
   res.json({ status: "ok", message: 'Hello from the backend, IT IS RUNNING :)!' });
 });
