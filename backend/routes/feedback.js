@@ -17,7 +17,7 @@ router.get("/:eventId", async(req, res) => {
 
         res.json({feedback: rows.length ? rows[0] : null});
     } catch (error) {
-        res.json(500).json({error: error.message});
+        res.status(500).json({error: error.message});
     }
 });
 

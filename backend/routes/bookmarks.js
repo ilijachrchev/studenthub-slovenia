@@ -40,9 +40,9 @@ router.get("/ids", async (req, res) => {
             [req.session.user.id]
         );
 
-        req.json({ ids: rows.map((row) => row.event_id) });
+        res.json({ ids: rows.map((row) => row.event_id) });
     } catch (error) {
-        res.status(500).json({errro: error.message});
+        res.status(500).json({error: error.message});
     }
 });
 
