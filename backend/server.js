@@ -28,7 +28,7 @@ const app = express();
 const PORT = 30011;
 
 // this is the middleware
-app.use(express.json());
+app.use(express.json({ limit: '512kb' }));
 
 app.use(
     session({
