@@ -9,6 +9,7 @@ const ROOT_CONFIG = {
 };
 
 module.exports = async function globalTeardown() {
+  // Clean up test database after tests complete
   const conn = await mysql.createConnection(ROOT_CONFIG);
   await conn.execute(`DROP DATABASE IF EXISTS \`${TEST_DB}\``);
   await conn.end();

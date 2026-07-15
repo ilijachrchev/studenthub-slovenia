@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const { Knex } = require("knex");
 
 const TEST_DB = "studenthub_test";
 const ROOT_CONFIG = {
@@ -11,38 +12,22 @@ const ROOT_CONFIG = {
 module.exports = async function globalSetup() {
   const conn = await mysql.createConnection(ROOT_CONFIG);
 
+  // Drop and recreate test database
+  await conn.execute(`DROP DATABASE IF EXISTS \`${TEST_DB}\``);
   await conn.execute(
-    `CREATE DATABASE IF NOT EXISTS \`${TEST_DB}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+    `CREATE DATABASE \`${TEST_DB}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
   );
-  await conn.execute(`DROP TABLE IF EXISTS \`${TEST_DB}\`.\`sessions\``);
-
-  // Load schema
-  const fs = require("fs");
-  const path = require("path");
-  const schemaPath = path.join(__dirname, "..", "db", "schema.sql");
-  if (fs.existsSync(schemaPath)) {
-    const schema = fs.readFileSync(schemaPath, "utf8");
-    const statements = schema
-      .split(";")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    for (const stmt of statements) {
-      await conn.execute(`\`${TEST_DB}\`.${stmt}`);
-    }
-  }
-
-  // Load seed
-  const seedPath = path.join(__dirname, "..", "db", "seed.sql");
-  if (fs.existsSync(seedPath)) {
-    const seed = fs.readFileSync(seedPath, "utf8");
-    const statements = seed
-      .split(";")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    for (const stmt of statements) {
-      await conn.execute(`\`${TEST_DB}\`.${stmt}`);
-    }
-  }
 
   await conn.end();
+
+  // Run migrations using Knex
+  const knexConfig = require("../knexfile").test;
+  const knex = Knex(knexConfig);
+
+  try {
+    await knex.migrate.latest();
+    await knex.seed.run();
+  } finally {
+    await knex.destroy();
+  }
 };
