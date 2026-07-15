@@ -7,6 +7,8 @@ RUN npm ci --omit=dev
 
 COPY . .
 
+RUN chmod +x docker-start.sh
+
 EXPOSE 30011
 
-CMD ["node", "server.js"]
+CMD ["./docker-start.sh"]

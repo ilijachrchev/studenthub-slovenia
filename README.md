@@ -86,17 +86,22 @@ Node.js + npm, Docker + Docker Compose (for local DB), and access to the MySQL d
 The fastest way to get a local database running:
 
 ```bash
-docker compose up -d db     # starts MySQL on :3306 with schema + seed
-```
-
-Then run the backend and frontend manually (see below), or start everything:
-
-```bash
-docker compose up -d        # starts MySQL + backend
+docker compose up -d        # starts MySQL + backend (runs migrations + seeds automatically)
 cd frontend && npm run dev  # frontend on :30010
 ```
 
-The Docker environment includes seed data and dev accounts (see below).
+The Docker backend automatically:
+1. Waits for MySQL to be healthy
+2. Runs all pending migrations (`npm run db:migrate`)
+3. Seeds development data (`npm run db:seed`)
+4. Starts the server
+
+To reset the database, remove the Docker volume:
+
+```bash
+docker compose down -v      # removes database volume
+docker compose up -d        # recreates with fresh migrations
+```
 
 ### Database setup
 
@@ -123,7 +128,15 @@ The Docker environment includes seed data and dev accounts (see below).
    npm run db:seed         # inserts idempotent test data
    ```
 
-#### Option B: Using raw SQL (legacy)
+#### Option B: Docker (automated)
+
+```bash
+docker compose up -d       # runs migrations + seeds automatically
+```
+
+#### Option C: Using raw SQL (deprecated)
+
+> ⚠️ The raw SQL files in `backend/db/` are retained as a schema snapshot for reference only. Use migrations for all new deployments.
 
 1. Create the database and import the schema:
    ```bash
