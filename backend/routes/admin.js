@@ -14,7 +14,7 @@ router.get("/events/pending", catchAsync(async (req, res) => {
         return res.status(403).json({error: "Only adming can access this" });
     }
 
-    const [events] = await pool.query(
+    const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
         e.start_datetime, e.end_datetime, e.registration_type, e.capacity,
         o.name AS organizer_name
@@ -36,12 +36,12 @@ router.post("/events/:id/approve", catchAsync(async (req, res) => {
         return res.status(403).json({ error: "Only admins can approve events" });
     }
 
-    const [result] = await pool.query(
-        "UPDATE event SET status = 'published' WHERE id = ? AND status = 'submitted'",
+    const { rowCount } = await pool.query(
+        "UPDATE event SET status = 'published' WHERE id = $1 AND status = 'submitted'",
         [req.params.id]
     );
 
-    if (result.affectedRows === 0) {
+    if (rowCount === 0) {
         return res.status(400).json({ error: "Event not found or not awaiting approval" });
     }
 
@@ -62,8 +62,8 @@ router.post("/events/:id/reject", catchAsync(async (req, res) => {
         return res.status(400).json({ error: "Rejection reason is required" });
     }
 
-    const [admins] = await pool.query(
-        "SELECT id FROM admin WHERE user_id = ?",
+    const { rows: admins } = await pool.query(
+        "SELECT id FROM admin WHERE user_id = $1",
         [req.session.user.id]
     );
 
@@ -72,33 +72,33 @@ router.post("/events/:id/reject", catchAsync(async (req, res) => {
     }
 
     const adminId = admins[0].id;
-    const connection = await pool.getConnection();
+    const client = await pool.connect();
     try {
-        await connection.beginTransaction();
+        await client.query("BEGIN");
 
-        const [result] = await connection.query(
-            "UPDATE event SET status = 'rejected' WHERE id = ? AND status = 'submitted'",
+        const { rowCount } = await client.query(
+            "UPDATE event SET status = 'rejected' WHERE id = $1 AND status = 'submitted'",
             [req.params.id]
         );
 
-        if (result.affectedRows === 0) {
-            await connection.rollback();
+        if (rowCount === 0) {
+            await client.query("ROLLBACK");
             return res.status(400).json({ error: "Event not found or not awaiting approval" });
         }
 
-        await connection.query(
-            "INSERT INTO event_rejection (event_id, admin_id, reason) VALUES (?, ?, ?)",
+        await client.query(
+            "INSERT INTO event_rejection (event_id, admin_id, reason) VALUES ($1, $2, $3)",
             [req.params.id, adminId, reason.trim()]
         );
 
-        await connection.commit();
+        await client.query("COMMIT");
         res.json({ message: "Event rejected" });
     } catch (error) {
-        await connection.rollback();
+        await client.query("ROLLBACK");
         logger.error({ err: error }, "Event rejection failed");
         res.status(500).json({ error: "Internal server error" });
     } finally {
-        connection.release();
+        client.release();
     }
 }));
 
@@ -111,13 +111,13 @@ router.get("/organizations/pending", catchAsync(async (req, res) => {
         return res.status(403).json({ error: "Only admins can access this" });
     }
 
-    const [organizations] = await pool.query(
-        `SELECT o.id, o.name, o.description, o.description, o.website,
+    const { rows: organizations } = await pool.query(
+        `SELECT o.id, o.name, o.description, o.website,
         o.contact_email, o.university_id,
         u.first_name, u.last_name, u.email AS applicant_email
         FROM organization o
         JOIN organizer_profile op ON op.organization_id = o.id AND op.role_in_org = 'owner'
-        JOIN user u ON u.id = op.user_id
+        JOIN "user" u ON u.id = op.user_id
         WHERE o.status = 'pending'
         ORDER BY o.id ASC`
     );
@@ -134,12 +134,12 @@ router.post("/organizations/:id/approve", catchAsync(async (req, res) => {
         return res.status(403).json({ error: "Only admins can approve organizations" });
     }
 
-    const [result] = await pool.query(
-        "UPDATE organization SET status = 'approved', approved_at = NOW() WHERE id = ? AND status = 'pending'",
+    const { rowCount } = await pool.query(
+        "UPDATE organization SET status = 'approved', approved_at = NOW() WHERE id = $1 AND status = 'pending'",
         [req.params.id]
     );
 
-    if (result.affectedRows === 0) {
+    if (rowCount === 0) {
         return res.status(400).json({ error: "Organization not found or not awaiting approval" });
     }
 
@@ -155,12 +155,12 @@ router.post("/organizations/:id/reject", catchAsync(async (req, res) => {
         return res.status(403).json({ error: "Only admins can reject organizations" });
     }
 
-    const [result] = await pool.query(
-        "UPDATE organization SET status = 'rejected' WHERE id = ? AND status = 'pending'",
+    const { rowCount } = await pool.query(
+        "UPDATE organization SET status = 'rejected' WHERE id = $1 AND status = 'pending'",
         [req.params.id]
     );
 
-    if (result.affectedRows === 0) {
+    if (rowCount === 0) {
         return res.status(400).json({ error: "Organization not found or not awaiting approval" });
     }
 

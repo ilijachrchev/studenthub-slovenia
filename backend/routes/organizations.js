@@ -5,6 +5,10 @@ const catchAsync = require("../middleware/catchAsync");
 
 const router = express.Router();
 
+function placeHolders(n) {
+  return Array.from({ length: n }, (_, i) => `$${i + 1}`);
+}
+
 // /api/organizations POST method
 router.post("/", catchAsync(async (req, res) => {
     if (!req.session.user || req.session.user.role !== "organizer") {
@@ -23,19 +27,20 @@ router.post("/", catchAsync(async (req, res) => {
     }
 
     // create org with status = PENDING
-    const [result] = await pool.query(
-        "INSERT INTO organization (name, description, logo, website, contact_email, university_id, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')",
+    const { rows: [org] } = await pool.query(
+        `INSERT INTO organization (name, description, logo, website, contact_email, university_id, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'pending') RETURNING id`,
         [name, description || null, logo || null, website || null, contact_email, university_id || null]
     );
 
     await pool.query(
-        "INSERT INTO organizer_profile (user_id, organization_id, role_in_org) VALUES ( ?, ?, 'owner')",
-        [req.session.user.id, result.insertId]
+        "INSERT INTO organizer_profile (user_id, organization_id, role_in_org) VALUES ($1, $2, 'owner')",
+        [req.session.user.id, org.id]
     );
 
     res.status(201).json({
         message: "Organization application submitted",
-        organizationId: result.insertId,
+        organizationId: org.id,
         status: "pending",
     });
 }));
@@ -46,10 +51,10 @@ router.get("/my-application", catchAsync(async (req, res) => {
         return res.status(401).json({ error: "Not logged in" });
     }
 
-    const [rows] = await pool.query(
+    const { rows } = await pool.query(
         `SELECT o.* FROM organization o
         JOIN organizer_profile op ON op.organization_id = o.id
-        WHERE op.user_id = ?`,
+        WHERE op.user_id = $1`,
         [req.session.user.id]
     );
 
@@ -64,12 +69,12 @@ router.get("/my-application", catchAsync(async (req, res) => {
 router.get("/:id", catchAsync(async (req, res) => {
     const orgId = req.params.id;
 
-    const [orgRows] = await pool.query(
+    const { rows: orgRows } = await pool.query(
         `SELECT o.id, o.name, o.description, o.logo, o.website, o.contact_email,
             u.name AS university_name
             FROM organization o
             LEFT JOIN university u ON o.university_id = u.id
-            WHERE o.id = ? AND o.status = 'approved'`,
+            WHERE o.id = $1 AND o.status = 'approved'`,
             [orgId]
     );
 
@@ -79,13 +84,13 @@ router.get("/:id", catchAsync(async (req, res) => {
 
     const organization = orgRows[0];
 
-    const [events] = await pool.query(
+    const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
         e.start_datetime, e.end_datetime, e.registration_type,
         o.name AS organization_name
         FROM event e
         JOIN organization o ON e.organization_id = o.id
-        WHERE e.organization_id = ? AND e.status = 'published'
+        WHERE e.organization_id = $1 AND e.status = 'published'
         ORDER BY e.start_datetime ASC`,
         [orgId]
     );
@@ -94,12 +99,13 @@ router.get("/:id", catchAsync(async (req, res) => {
 
     if (events.length > 0) {
         const eventIds = events.map((event) => event.id);
-        const [tagRows] = await pool.query(
+        const ph = placeHolders(eventIds.length);
+        const { rows: tagRows } = await pool.query(
             `SELECT et.event_id, t.id, t.name
             FROM event_tag et
             JOIN tag t ON et.tag_id = t.id
-            WHERE et.event_id IN (?)`,
-            [eventIds]
+            WHERE et.event_id IN (${ph})`,
+            eventIds
         );
 
         const tagsByEvent = {};
