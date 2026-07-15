@@ -1,14 +1,55 @@
 /**
  * Development seed data for StudentHub Slovenia
+ *
+ * This seed provides test data for development and testing environments.
+ * All inserts use onConflict().ignore() to ensure idempotency.
+ *
  * Passwords (bcrypt hashed):
  *   admin@studenthub.test     → admin123
  *   organizer@studenthub.test → organizer123
  *   student@famnit.upr.si     → student123
  *
- * This seed is idempotent: rerunning will not duplicate records.
+ * Dependencies:
+ *   - Requires all tables to exist (run migrations first)
+ *   - Inserts in dependency order to satisfy foreign key constraints
+ *
+ * Usage:
+ *   npm run db:seed
  */
 
 exports.seed = async function (knex) {
+  // Verify required tables exist before seeding
+  const requiredTables = [
+    "university",
+    "faculty",
+    "tag",
+    "user",
+    "admin",
+    "organization",
+    "organizer_profile",
+    "event",
+    "event_tag",
+    "event_target",
+    "student_profile",
+    "user_interest",
+    "bookmark",
+    "registration",
+    "feedback",
+  ];
+
+  const existingTables = await knex.raw("SHOW TABLES");
+  const tableNames = existingTables[0].map((row) => Object.values(row)[0]);
+  const missingTables = requiredTables.filter(
+    (table) => !tableNames.includes(table)
+  );
+
+  if (missingTables.length > 0) {
+    throw new Error(
+      `Cannot seed: missing required tables. Run migrations first.\n` +
+        `Missing: ${missingTables.join(", ")}`
+    );
+  }
+
   // Universities
   await knex("university").insert([
     { id: 1, name: "Univerza na Primorskem" },
