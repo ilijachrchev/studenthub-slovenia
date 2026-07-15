@@ -25,6 +25,8 @@ const feedbackRoutes = require("./routes/feedback");
 
 const searchRoutes = require("./routes/search");
 
+const { validateOrigin } = require("./middleware/csrf");
+
 
 const app = express();
 const PORT = 30011;
@@ -56,6 +58,8 @@ app.use(
         },
     })
 );
+
+app.use(validateOrigin);
 
 app.get('/api', (req, res) => {
   res.json({ status: "ok", message: 'Hello from the backend, IT IS RUNNING :)!' });
