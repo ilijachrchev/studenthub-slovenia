@@ -172,7 +172,9 @@ router.post("/reset-password", authLimiter, async (req, res) => {
             [hashedPassword, users[0].id]
         );
 
-        res.json({ message: "Password updated successfully" });
+        req.session.destroy(() => {
+            res.json({ message: "Password updated successfully" });
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });
