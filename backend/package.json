@@ -11,7 +11,9 @@
     "db:migrate:make": "knex migrate:make",
     "db:seed": "knex seed:run",
     "db:seed:make": "knex seed:make",
-    "db:verify": "node db/verify.js"
+    "db:verify": "node db/verify.js",
+    "db:reset": "node db/reset.js",
+    "db:status": "node db/status.js"
   },
   "keywords": [],
   "author": "",
