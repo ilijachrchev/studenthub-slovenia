@@ -1,5 +1,6 @@
 require("dotenv").config()
 const express = require('express');
+const helmet = require("helmet");
 const pool = require("./db");
 const session = require("express-session");
 
@@ -28,6 +29,10 @@ const app = express();
 const PORT = 30011;
 
 // this is the middleware
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
 app.use(express.json({ limit: '512kb' }));
 
 app.use(
