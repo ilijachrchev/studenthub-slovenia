@@ -65,17 +65,21 @@ router.post("/register", authLimiter, catchAsync(async (req, res) => {
         [first_name, last_name, email, hashedPassword, userRole]
     );
 
-    req.session.user = {
-        id: result.id,
-        first_name,
-        last_name,
-        email,
-        role: userRole,
-    };
+    // Regenerate session to prevent session fixation
+    req.session.regenerate((err) => {
+        if (err) {
+            return res.status(500).json({ error: "Registration failed" });
+        }
 
-    res.status(201).json({
-        message: "Registration successful",
-        userId: result.id,
+        req.session.user = {
+            id: result.id,
+            first_name,
+            last_name,
+            email,
+            role: userRole,
+        };
+
+        res.status(201).json({ message: "Registration successful" });
     });
 }));
 
@@ -102,16 +106,22 @@ router.post("/login", authLimiter, catchAsync(async (req, res) => {
         return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // save the user in session
-    req.session.user = {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email,
-        role: user.role,
-    };
+    // Regenerate session to prevent session fixation
+    req.session.regenerate((err) => {
+        if (err) {
+            return res.status(500).json({ error: "Login failed" });
+        }
 
-    res.json({ message: "Login successful", user: req.session.user });
+        req.session.user = {
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            role: user.role,
+        };
+
+        res.json({ message: "Login successful", user: req.session.user });
+    });
 }));
 
 // /api/auth/me GET method
