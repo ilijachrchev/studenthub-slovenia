@@ -77,7 +77,24 @@ Event lifecycle status: `draft → submitted → published` or `rejected`.
 ## Setup
 
 ### Prerequisites
-Node.js + npm, and access to the MySQL database on `88.200.63.148`.
+Node.js + npm, Docker + Docker Compose (for local DB), and access to the MySQL database on `88.200.63.148`.
+
+### Quick start with Docker
+
+The fastest way to get a local database running:
+
+```bash
+docker compose up -d db     # starts MySQL on :3306 with schema + seed
+```
+
+Then run the backend and frontend manually (see below), or start everything:
+
+```bash
+docker compose up -d        # starts MySQL + backend
+cd frontend && npm run dev  # frontend on :30010
+```
+
+The Docker environment includes seed data and dev accounts (see below).
 
 ### Database setup
 

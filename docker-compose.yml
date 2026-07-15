@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: SISIII2026_89241041
+      MYSQL_USER: studenti
+      MYSQL_PASSWORD: studentipass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    ports:
+      - "30011:30011"
+    environment:
+      DB_HOST: db
+      DB_USER: studenti
+      DB_PASSWORD: studentipass
+      DB_DATABASE: SISIII2026_89241041
+      DB_PORT: 3306
+      SESSION_SECRET: dev-session-secret-change-in-production
+      FRONTEND_URL: http://localhost:30010
+      PORT: 30011
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
