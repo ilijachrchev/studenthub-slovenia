@@ -1,8 +1,5 @@
 const express = require("express");
 const pool = require("../db");
-const { error } = require("node:console");
-const { json } = require("body-parser");
-const { start } = require("node:repl");
 
 const router = express.Router();
 

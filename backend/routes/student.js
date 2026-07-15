@@ -1,6 +1,5 @@
 const express = require("express");
 const pool = require("../db");
-const { error } = require("node:console");
 
 const router = express.Router();
 
