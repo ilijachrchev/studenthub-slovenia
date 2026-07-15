@@ -4,7 +4,7 @@ function Ticket({ ticketCode }) {
     return (
         <div className="ticket">
             <div className="ticket-qr">
-                <QRCodeSVG />
+                <QRCodeSVG value={ticketCode} />
             </div>
             <p className="ticket-label">Your ticket</p>
             <p className="ticket-code">{ticketCode}</p>
