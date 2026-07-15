@@ -1,4 +1,11 @@
 -- StudentHub Slovenia — Database Schema
+--
+-- DEPRECATED: This file is retained as a schema snapshot for reference only.
+-- All database changes should be made through Knex migrations in db/migrations/.
+--
+-- For new deployments, use: npm run db:migrate
+-- For Docker deployments, migrations run automatically on startup.
+--
 -- Database: SISIII2026_89241041
 -- Engine: InnoDB, Collation: utf8_unicode_ci
 

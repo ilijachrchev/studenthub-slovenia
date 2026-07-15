@@ -1,4 +1,11 @@
 -- StudentHub Slovenia — Development Seed Data
+--
+-- DEPRECATED: This file is retained as a seed data snapshot for reference only.
+-- All seeding should be done through Knex seeds in db/seeds/.
+--
+-- For new deployments, use: npm run db:seed
+-- For Docker deployments, seeds run automatically on startup.
+--
 -- Passwords (bcrypt hashed):
 --   admin@studenthub.test     → admin123
 --   organizer@studenthub.test → organizer123
