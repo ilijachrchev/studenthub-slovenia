@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     try {
         if (!req.session.user) {
-            res.status(401).json({error: "Not logged in"})
+            return res.status(401).json({error: "Not logged in"});
         }
 
         const [rows] = await pool.query(
@@ -50,9 +50,9 @@ router.get("/ids", async (req, res) => {
 router.post("/:id", async (req, res) => {
     try {
         if (!req.session.user) {
-            res.status(401).json({error: "Not logged in"})
+            return res.status(401).json({error: "Not logged in"});
         }
-        
+
         const userId = req.session.user.id;
         const eventId = req.params.id;
 

@@ -11,10 +11,10 @@ const router = express.Router();
 router.get("/events", async (req, res) => {
     try {
         if (!req.session.user) {
-            res.status(401).json({error: "Not logged in"});
+            return res.status(401).json({error: "Not logged in"});
         }
         if (req.session.user.role !== "organizer") {
-            res.status(403).json({error: "Only organiers can access this"});
+            return res.status(403).json({error: "Only organizers can access this"});
         }
 
         const [events] = await pool.query(
@@ -157,7 +157,7 @@ router.post("/events/:id/submit" , async (req, res) => {
         await pool.query("UPDATE event SET status = 'submitted' WHERE id = ?", [eventId]);
 
         res.json({message: "Event submitted for approval"});
-    } catch {
+    } catch (error) {
         res.status(500).json({error: error.message});
     }
 });
