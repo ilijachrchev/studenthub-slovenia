@@ -19,7 +19,7 @@ function ApplicationStatus() {
 
         if (!res.ok) {
           const data = await res.json();
-          setError(DataTransfer.error || "Failed to load application status");
+          setError(data.error || "Failed to load application status");
           return;
         }
 
