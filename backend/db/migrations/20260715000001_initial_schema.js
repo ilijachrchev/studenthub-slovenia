@@ -1,6 +1,11 @@
 /**
  * Initial schema for StudentHub Slovenia
- * Creates all tables, indexes, and constraints
+ *
+ * This migration creates all tables, indexes, and constraints for the application.
+ * Tables are created in dependency order to satisfy foreign key constraints.
+ *
+ * Safety: Uses createTable which is idempotent in Knex (only creates if not exists).
+ * The down() migration drops all tables in reverse dependency order.
  */
 
 exports.up = function (knex) {
