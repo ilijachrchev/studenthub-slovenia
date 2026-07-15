@@ -16,22 +16,40 @@ services:
       timeout: 3s
       retries: 10
 
+  db-pg:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: SISIII2026_89241041
+      POSTGRES_USER: studenti
+      POSTGRES_PASSWORD: studentipass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studenti -d SISIII2026_89241041"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   backend:
     build: ./backend
     ports:
       - "30011:30011"
     environment:
-      DB_HOST: db
+      DB_CLIENT: pg
+      DB_HOST: db-pg
       DB_USER: studenti
       DB_PASSWORD: studentipass
       DB_DATABASE: SISIII2026_89241041
-      DB_PORT: 3306
+      DB_PORT: 5432
       SESSION_SECRET: dev-session-secret-change-in-production
       FRONTEND_URL: http://localhost:30010
       PORT: 30011
     depends_on:
-      db:
+      db-pg:
         condition: service_healthy
 
 volumes:
   db_data:
+  db_pg_data:
