@@ -17,6 +17,8 @@ const bookmarksRoutes = require("./routes/bookmarks");
 const feedbackRoutes = require("./routes/feedback");
 const searchRoutes = require("./routes/search");
 const { validateOrigin } = require("./middleware/csrf");
+const logger = require("./middleware/logger");
+const pinoHttp = require("pino-http");
 
 const db = require("./db");
 
@@ -35,21 +37,31 @@ app.use(cors({
 
 app.use(express.json({ limit: '512kb' }));
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+    if (process.env.NODE_ENV === "production") {
+        throw new Error("SESSION_SECRET environment variable is required in production");
+    }
+    console.warn("WARNING: Using default session secret. Set SESSION_SECRET in .env for production.");
+}
+
 app.use(
     session({
-        secret: process.env.SESSION_SECRET || "test-secret",
+        secret: sessionSecret || "dev-only-insecure-secret",
         resave: false,
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.COOKIE_SECURE === "true" || process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000,
         },
     })
 );
 
 app.use(validateOrigin);
+
+app.use(pinoHttp({ logger, autoLogging: process.env.NODE_ENV !== "test" }));
 
 app.get('/api/health', async (req, res) => {
   let database = "disconnected";
@@ -90,5 +102,17 @@ if (fs.existsSync(reactBuildPath)) {
         res.sendFile(path.join(reactBuildPath, "index.html"));
     });
 }
+
+// Global error handler — catches errors from non-catchAsync middleware
+// and prevents Express default HTML error page (which leaks stack traces)
+app.use((err, req, res, _next) => {
+    const status = err.status || err.statusCode;
+    if (status) {
+        logger.warn({ err: err.message }, "Client error");
+        return res.status(status).json({ error: err.message });
+    }
+    logger.error({ err: err.message }, "Unhandled middleware error");
+    res.status(500).json({ error: "Internal server error" });
+});
 
 module.exports = app;

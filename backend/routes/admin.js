@@ -2,17 +2,14 @@ const express = require("express");
 const pool = require("../db");
 const catchAsync = require("../middleware/catchAsync");
 const logger = require("../middleware/logger");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
+const requireAdmin = requireRole("admin");
+
 // /api/admin/events/pending GET method
-router.get("/events/pending", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({error: "Only adming can access this" });
-    }
+router.get("/events/pending", requireAdmin, catchAsync(async (req, res) => {
 
     const { rows: events } = await pool.query(
         `SELECT e.id, e.title, e.description, e.location,
@@ -28,13 +25,7 @@ router.get("/events/pending", catchAsync(async (req, res) => {
 }));
 
 // /api/admin/events/:id/approve POST method
-router.post("/events/:id/approve", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can approve events" });
-    }
+router.post("/events/:id/approve", requireAdmin, catchAsync(async (req, res) => {
 
     const { rowCount } = await pool.query(
         "UPDATE event SET status = 'published' WHERE id = $1 AND status = 'submitted'",
@@ -49,13 +40,7 @@ router.post("/events/:id/approve", catchAsync(async (req, res) => {
 }));
 
 // /api/admin/events/:id/rejected POST method
-router.post("/events/:id/reject", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can reject events" });
-    }
+router.post("/events/:id/reject", requireAdmin, catchAsync(async (req, res) => {
 
     const {reason} = req.body;
     if (!reason || !reason.trim()) {
@@ -103,13 +88,7 @@ router.post("/events/:id/reject", catchAsync(async (req, res) => {
 }));
 
 // /api/admin/organizations/pending GET method
-router.get("/organizations/pending", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can access this" });
-    }
+router.get("/organizations/pending", requireAdmin, catchAsync(async (req, res) => {
 
     const { rows: organizations } = await pool.query(
         `SELECT o.id, o.name, o.description, o.website,
@@ -126,13 +105,7 @@ router.get("/organizations/pending", catchAsync(async (req, res) => {
 }));
 
 // /api/admin/organizations/:id/approve POST method
-router.post("/organizations/:id/approve", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can approve organizations" });
-    }
+router.post("/organizations/:id/approve", requireAdmin, catchAsync(async (req, res) => {
 
     const { rowCount } = await pool.query(
         "UPDATE organization SET status = 'approved', approved_at = NOW() WHERE id = $1 AND status = 'pending'",
@@ -147,13 +120,7 @@ router.post("/organizations/:id/approve", catchAsync(async (req, res) => {
 }));
 
 // /api/admin/organizations/:id/reject POST method
-router.post("/organizations/:id/reject", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-    if (req.session.user.role !== "admin") {
-        return res.status(403).json({ error: "Only admins can reject organizations" });
-    }
+router.post("/organizations/:id/reject", requireAdmin, catchAsync(async (req, res) => {
 
     const { rowCount } = await pool.query(
         "UPDATE organization SET status = 'rejected' WHERE id = $1 AND status = 'pending'",

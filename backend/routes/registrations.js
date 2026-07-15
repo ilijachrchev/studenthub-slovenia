@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const crypto = require("crypto");
 const catchAsync = require("../middleware/catchAsync");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -36,11 +37,7 @@ router.get("/:id", catchAsync(async (req, res) => {
 
 
 // /api/register/:id POST method
-router.post("/:id", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-      return res.status(401).json({error: "You must be logged in to register!"});
-    }
-
+router.post("/:id", requireAuth, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
     const eventId = req.params.id;
 
@@ -90,10 +87,7 @@ router.post("/:id", catchAsync(async (req, res) => {
 
 
 // /api/registration/:id DELETE method
-router.delete("/:id", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-      return res.status(401).json({error: "Not logged in"});
-    }
+router.delete("/:id", requireAuth, catchAsync(async (req, res) => {
     const { rowCount } = await pool.query(
       "DELETE FROM registration WHERE user_id = $1 AND event_id = $2",
       [req.session.user.id, req.params.id]
@@ -107,11 +101,7 @@ router.delete("/:id", catchAsync(async (req, res) => {
 
 
 // /api/registration/:id GET method
-router.get("/", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
-
+router.get("/", requireAuth, catchAsync(async (req, res) => {
     const { rows } = await pool.query(
         `SELECT r.id, r.event_id, r.registered_at, r.ticket_code, r.checked_in,
                 e.title, e.start_datetime, e.end_datetime, e.location,

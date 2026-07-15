@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const { validateOrganization } = require("../middleware/validate");
 const catchAsync = require("../middleware/catchAsync");
+const { requireAuth, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -10,11 +11,7 @@ function placeHolders(n) {
 }
 
 // /api/organizations POST method
-router.post("/", catchAsync(async (req, res) => {
-    if (!req.session.user || req.session.user.role !== "organizer") {
-        return res.status(403).json({ error: "Only organizers can create organizations" });
-    }
-
+router.post("/", requireAuth, requireRole("organizer"), catchAsync(async (req, res) => {
     const { name, description, logo, website, contact_email, university_id } = req.body;
 
     if (!name || !contact_email) {
@@ -46,11 +43,7 @@ router.post("/", catchAsync(async (req, res) => {
 }));
 
 // /api/organizations/my-application GET method
-router.get("/my-application", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not logged in" });
-    }
-
+router.get("/my-application", requireAuth, catchAsync(async (req, res) => {
     const { rows } = await pool.query(
         `SELECT o.* FROM organization o
         JOIN organizer_profile op ON op.organization_id = o.id

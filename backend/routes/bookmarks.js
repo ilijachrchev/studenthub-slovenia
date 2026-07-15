@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const catchAsync = require("../middleware/catchAsync");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -40,11 +41,7 @@ router.get("/ids", catchAsync(async (req, res) => {
 }));
 
 // /api/bookmarks/:id POST method
-router.post("/:id", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
-
+router.post("/:id", requireAuth, catchAsync(async (req, res) => {
     const userId = req.session.user.id;
     const eventId = req.params.id;
 
@@ -65,11 +62,7 @@ router.post("/:id", catchAsync(async (req, res) => {
 }));
 
 // /api/bookmarks/:id DELETE method
-router.delete("/:id", catchAsync(async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({error: "Not logged in"});
-    }
-
+router.delete("/:id", requireAuth, catchAsync(async (req, res) => {
     const { rowCount } = await pool.query(
         "DELETE FROM bookmark WHERE user_id = $1 AND event_id = $2",
         [req.session.user.id, req.params.id]
