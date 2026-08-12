@@ -11,18 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:15
         env:
-          MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: studenthub_test
+          POSTGRES_USER: studenti
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: studenthub_test
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -37,13 +38,14 @@ jobs:
         working-directory: backend
 
       - name: Run backend tests
-        run: npm test
+        run: npm test -- --runInBand
         working-directory: backend
         env:
           DB_HOST: localhost
-          DB_PORT: 3306
-          DB_USER: root
-          DB_PASSWORD: rootpass
+          DB_PORT: 5432
+          DB_USER: studenti
+          DB_PASSWORD: password
+          DB_NAME: studenthub_test
           SESSION_SECRET: test-secret
           NODE_ENV: test
 
