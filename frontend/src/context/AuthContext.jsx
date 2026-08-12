@@ -19,16 +19,14 @@ export function AuthProvider({ children}) {
         } catch {
             setUser(null);
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
-}, []);
+    }, []);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        queueMicrotask(() => {
             refreshUser();
-        }, 0);
-
-        return () => clearTimeout(timer);
+        });
     }, [refreshUser]);
 
 
@@ -38,7 +36,6 @@ export function AuthProvider({ children}) {
         </AuthContext.Provider>
     );
 }
-
 
 export function useAuth() {
     return useContext(AuthContext);

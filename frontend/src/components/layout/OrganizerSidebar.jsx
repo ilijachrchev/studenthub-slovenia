@@ -1,12 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
-function OrganizerSidebar () {
+function OrganizerSidebar() {
     const location = useLocation();
 
     const links = [
-        {label: "Dashboard", path: "/organizer"},
-        {label: "Create Event", path: "/organizer/events/new"},
+        { label: "Dashboard", path: "/organizer" },
+        { label: "Create Event", path: "/organizer/events/new" },
+        { label: "Opportunities", path: "/organizer/opportunities" },
+        { label: "Applicants", path: "/organizer/opportunities/applicants" },
+        { label: "Analytics", path: "/organizer/opportunities/analytics" },
     ];
 
     return (
@@ -27,7 +30,7 @@ function OrganizerSidebar () {
                 ))}
             </nav>
         </div>
-    )
+    );
 }
 
 export default OrganizerSidebar;

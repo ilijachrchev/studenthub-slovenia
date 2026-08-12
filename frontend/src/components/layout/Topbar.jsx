@@ -4,28 +4,27 @@ import { Bell, LogoutKopce } from "../reusable/Icons";
 import { useEffect, useRef, useState } from "react";
 
 function Topbar() {
-
-    const {user, loading, refreshUser} = useAuth();
+    const { user, loading, refreshUser } = useAuth();
     const navigate = useNavigate();
     const [term, setTerm] = useState("");
     const [unreadCount, setUnreadCount] = useState(0);
     const timerRef = useRef(null);
     const notificationTimerRef = useRef(null);
 
-    const initials = user  
+    const initials = user
         ? `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase()
         : "";
 
-        const roleLabel = user
-            ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-            : "";
+    const roleLabel = user
+        ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+        : "";
 
     const runSearch = (value) => {
         const query = value.trim();
         if (query) {
-            navigate(`/search?q=${encodeURIComponent(query)}`, {replace: true});
+            navigate(`/search?q=${encodeURIComponent(query)}`, { replace: true });
         } else {
-            navigate("/", {replace: true});
+            navigate("/", { replace: true });
         }
     };
 
@@ -50,15 +49,18 @@ function Topbar() {
                 method: "POST",
                 credentials: "include",
             });
-        } catch (error) {
-            void error;
+        } catch {
+            // Ignore logout failures and continue clearing local auth state.
         }
         await refreshUser();
         navigate("/login");
-    }
+    };
 
     useEffect(() => {
-        if (!user) return undefined;
+        if (!user) {
+            setUnreadCount(0);
+            return undefined;
+        }
 
         let alive = true;
 
@@ -80,8 +82,7 @@ function Topbar() {
                     ? data
                     : data.notifications || data.items || data.data || [];
                 setUnreadCount(items.length);
-            } catch (error) {
-                void error;
+            } catch {
                 if (alive) setUnreadCount(0);
             }
         };
@@ -97,7 +98,8 @@ function Topbar() {
 
     return (
         <header className="app-topbar">
-            <input type="text" 
+            <input
+                type="text"
                 className="topbar-search"
                 placeholder="Search events, organizations, or topics..."
                 value={term}
@@ -137,15 +139,13 @@ function Topbar() {
                 )}
 
                 {!loading && !user && (
-                    <button className="topbar-profile topbar-profile-guest"
-                        onClick={() => navigate("/login")}
-                    >
+                    <button className="topbar-profile topbar-profile-guest" onClick={() => navigate("/login")}>
                         Sign In
                     </button>
                 )}
             </div>
         </header>
-    )
+    );
 }
 
 export default Topbar;

@@ -17,8 +17,7 @@ function Saved() {
             } else {
                 setEvents(data);
             }
-        } catch (error) {
-            void error;
+        } catch {
             setError("Failed to load saved events")
         } finally {
             setLoading(false);
@@ -34,8 +33,8 @@ function Saved() {
             method: "DELETE",
             credentials: "include",
         });
-    } catch (error) {
-        void error;
+    } catch {
+        // Ignore delete failures; the UI is already updated optimistically.
     }
   };
 

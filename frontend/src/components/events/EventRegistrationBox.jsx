@@ -10,6 +10,8 @@ function EventRegistrationBox({ event }) {
 
   useEffect(() => {
     if (event.registration_type !== "built_in") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false);
       return;
     }
 
@@ -20,8 +22,8 @@ function EventRegistrationBox({ event }) {
         });
         const data = await res.json();
         setRegistration(data.registration);
-      } catch (error) {
-        void error;
+      } catch {
+        // Intentionally ignore fetch failures here.
       } finally {
         setLoading(false);
       }
@@ -45,8 +47,7 @@ function EventRegistrationBox({ event }) {
       } else {
         setRegistration(data);
       }
-    } catch (error) {
-      void error;
+    } catch {
       setError("Could not register. Please try again.");
     } finally {
       setWorking(false);
@@ -68,9 +69,8 @@ function EventRegistrationBox({ event }) {
       } else {
         setRegistration(null);
       }
-    } catch (error) {
-      void error;
-        setError("Could not cancel. Please try again.");
+    } catch {
+      setError("Could not cancel. Please try again.");
     } finally {
       setWorking(false);
     }
