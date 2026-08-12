@@ -38,6 +38,7 @@ function Login() {
       const role = data.user.role;
       navigate(role === "organizer" ? "/organizer" : role === "admin" ? "/admin" : "/");
     } catch (error) {
+      void error;
       setError("Something went wrong. Please try again!")
       setLoading(false);
     }
