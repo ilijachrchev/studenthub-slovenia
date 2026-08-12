@@ -10,7 +10,6 @@ function EventRegistrationBox({ event }) {
 
   useEffect(() => {
     if (event.registration_type !== "built_in") {
-      setLoading(false);
       return;
     }
 
@@ -21,7 +20,8 @@ function EventRegistrationBox({ event }) {
         });
         const data = await res.json();
         setRegistration(data.registration);
-      } catch {
+      } catch (error) {
+        void error;
       } finally {
         setLoading(false);
       }
@@ -45,7 +45,8 @@ function EventRegistrationBox({ event }) {
       } else {
         setRegistration(data);
       }
-    } catch {
+    } catch (error) {
+      void error;
       setError("Could not register. Please try again.");
     } finally {
       setWorking(false);
@@ -67,7 +68,8 @@ function EventRegistrationBox({ event }) {
       } else {
         setRegistration(null);
       }
-    } catch {
+    } catch (error) {
+      void error;
         setError("Could not cancel. Please try again.");
     } finally {
       setWorking(false);

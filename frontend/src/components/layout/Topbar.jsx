@@ -8,7 +8,9 @@ function Topbar() {
     const {user, loading, refreshUser} = useAuth();
     const navigate = useNavigate();
     const [term, setTerm] = useState("");
+    const [unreadCount, setUnreadCount] = useState(0);
     const timerRef = useRef(null);
+    const notificationTimerRef = useRef(null);
 
     const initials = user  
         ? `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase()
@@ -42,16 +44,56 @@ function Topbar() {
         }
     };
 
-    const handleLogout = async (e) => {
+    const handleLogout = async () => {
         try {
             await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
-        } catch {}
+        } catch (error) {
+            void error;
+        }
         await refreshUser();
         navigate("/login");
     }
+
+    useEffect(() => {
+        if (!user) return undefined;
+
+        let alive = true;
+
+        const loadUnreadCount = async () => {
+            try {
+                const response = await fetch("/api/notifications?unread=1", {
+                    credentials: "include",
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!alive || !response.ok) return;
+
+                if (typeof data.unreadCount === "number") {
+                    setUnreadCount(data.unreadCount);
+                    return;
+                }
+
+                const items = Array.isArray(data)
+                    ? data
+                    : data.notifications || data.items || data.data || [];
+                setUnreadCount(items.length);
+            } catch (error) {
+                void error;
+                if (alive) setUnreadCount(0);
+            }
+        };
+
+        loadUnreadCount();
+        notificationTimerRef.current = setInterval(loadUnreadCount, 60000);
+
+        return () => {
+            alive = false;
+            if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
+        };
+    }, [user]);
 
     return (
         <header className="app-topbar">
@@ -64,8 +106,13 @@ function Topbar() {
             />
 
             <div className="topbar-actions">
-                <button className="topbar-icon-button" aria-label="Notifications">
+                <button
+                    className="topbar-icon-button topbar-icon-wrap"
+                    aria-label="Notifications"
+                    onClick={() => navigate("/notifications")}
+                >
                     <Bell size={20} />
+                    {unreadCount > 0 && <span className="topbar-unread-badge">{unreadCount}</span>}
                 </button>
 
                 {!loading && user && (

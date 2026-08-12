@@ -45,6 +45,7 @@ function Register() {
         navigate("/setup-feed");
       }
     } catch (err) {
+      void err;
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }

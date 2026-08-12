@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useContext, useCallback } from "react";
 
 const AuthContext = createContext(null);
@@ -23,7 +24,11 @@ export function AuthProvider({ children}) {
 }, []);
 
     useEffect(() => {
-        refreshUser();
+        const timer = setTimeout(() => {
+            refreshUser();
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, [refreshUser]);
 
 
