@@ -10,6 +10,7 @@ function EventRegistrationBox({ event }) {
 
   useEffect(() => {
     if (event.registration_type !== "built_in") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }
@@ -22,6 +23,7 @@ function EventRegistrationBox({ event }) {
         const data = await res.json();
         setRegistration(data.registration);
       } catch {
+        // Intentionally ignore fetch failures here.
       } finally {
         setLoading(false);
       }

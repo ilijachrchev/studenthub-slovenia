@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useContext, useCallback } from "react";
 
 const AuthContext = createContext(null);
@@ -23,7 +24,9 @@ export function AuthProvider({ children}) {
 }, []);
 
     useEffect(() => {
-        refreshUser();
+        queueMicrotask(() => {
+            refreshUser();
+        });
     }, [refreshUser]);
 
 
@@ -33,8 +36,6 @@ export function AuthProvider({ children}) {
         </AuthContext.Provider>
     );
 }
-
-
 export function useAuth() {
     return useContext(AuthContext);
 }

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import useAuth from "../../context/useAuth";
 import { Bell, LogoutKopce } from "../reusable/Icons";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 function Topbar() {
 
@@ -42,13 +42,15 @@ function Topbar() {
         }
     };
 
-    const handleLogout = async (e) => {
+    const handleLogout = async () => {
         try {
             await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
-        } catch {}
+        } catch {
+            // Ignore logout failures and continue clearing local auth state.
+        }
         await refreshUser();
         navigate("/login");
     }

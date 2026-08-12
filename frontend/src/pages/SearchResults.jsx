@@ -12,7 +12,6 @@ function SearchResults() {
 
   useEffect(() => {
     if (!query) {
-        setEvents([]);
         return;
     }
 
