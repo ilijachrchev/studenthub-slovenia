@@ -58,7 +58,7 @@ function Topbar() {
 
     useEffect(() => {
         if (!user) {
-            setUnreadCount(0);
+            queueMicrotask(() => setUnreadCount(0));
             return undefined;
         }
 
